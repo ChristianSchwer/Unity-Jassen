@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7325994092121364655
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2660891252292356}
+  - component: {fileID: 4157181066205099486}
+  m_Layer: 0
+  m_Name: Game_Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2660891252292356
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7325994092121364655}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 360.5, y: 203, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4157181066205099486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7325994092121364655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 991d28241ae0ba64b95a18004b71627c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlayerArea1: {fileID: 0}
+  PlayerArea2: {fileID: 0}
+  PlayerArea3: {fileID: 0}
+  PlayerArea4: {fileID: 0}
+  DropZone: {fileID: 0}
+  Yard: {fileID: 0}
+  NextCard: {fileID: 0}
+  ShuffleCards: {fileID: 0}
+  PlayerTurn: {fileID: 0}
+  Trumpf: {fileID: 0}
+  Score1: {fileID: 0}
+  Score2: {fileID: 0}
+  Score3: {fileID: 0}
+  Score4: {fileID: 0}
+  state: 0
