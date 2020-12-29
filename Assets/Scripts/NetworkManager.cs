@@ -2,84 +2,111 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Photon.Pun;
+using Photon.Realtime;
+using System;
 
-public class NetworkManager : MonoBehaviour
+public class NetworkManager : MonoBehaviourPunCallbacks
 {
-    public SwitchScene SwitchScene;
-    string gameVersion = "1";
+    #region Private Fields
 
-    // Start is called before the first frame update
+    [SerializeField]
+    private string gameVersion = "1";
+    [SerializeField]
+    private GameObject controlPanel;
+    [SerializeField]
+    private GameObject progressLabel;
+
+    #endregion
+
+    #region Public Fields
+
+    public InputField nickName;
+
+    #endregion
+
+    #region MonoBehaviour Callbacks
+
     void Start()
     {
-        //desk = GameObject.Find("Main_Canvas").transform.Find("Desk").gameObject;
+        PhotonNetwork.AutomaticallySyncScene = true;
+        progressLabel.SetActive(false);
+        controlPanel.SetActive(true);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        //Debug.Log(PhotonNetwork.connectionStateDetailed.ToString());
-    }
+    #endregion
+
+    #region Public Methods
 
     public void Connect()
     {
-        Debug.Log("Connect wird ausgeführt.");
-        PhotonNetwork.ConnectUsingSettings(gameVersion);
-    }
-
-    void OnConnectedToMaster()
-    {
-        Debug.Log("Mit Master verbunden. Szene für Lobby laden.");
-        PhotonNetwork.JoinLobby();
-    }
-
-    void OnJoinedLobby()
-    {
-        Debug.Log("Wir sind mit der Lobby verbunden.");
-        SwitchScene.NextScene("Multiplayer");
-        PhotonNetwork.JoinRandomRoom();
-    }
-    
-    void OnPhotonRandomJoinFailed()
-    {
-        Debug.Log("asdf");
-        PhotonNetwork.CreateRoom(null);
-        Debug.Log("New Room");
-    }
-
-    void OnJoinedRoom()
-    {
-        print("ok");
-        Spawn();
-    }
-
-    void Spawn()
-      {
-        foreach (var player in PhotonNetwork.playerList)
+        PhotonNetwork.NickName = nickName.text;
+        progressLabel.SetActive(true);
+        controlPanel.SetActive(false);
+        if (PhotonNetwork.IsConnected)
         {
-            print(player);
-          /*//if (i == 0)
-          //{
-          desk.transform.Find("PlayerName1").GetComponent<Text> ().text = player.NickName;
-          //}
-          //if (i == 1)
-          //{
-          //  desk.transform.Find("PlayerName2").GetComponent<Text> ().text = player.NickName;
-          //}
-          //if (i == 2)
-          //{
-          //  desk.transform.Find("PlayerName3").GetComponent<Text> ().text = player.NickName;
-          //}
-          //if (i == 3)
-          //{
-          //  desk.transform.Find("PlayerName4").GetComponent<Text> ().text = player.NickName;
-          //}
-          //i++;*/
+            PhotonNetwork.JoinLobby();
         }
-      }
-
-    public void SaveNickname()
-    {
-        string nickName = GameObject.Find("NicknameText").GetComponent<Text>().text.ToString();
-        PhotonNetwork.player.NickName = nickName;
+        else
+        {
+            Debug.Log("NetworkManager: Connect() wird ausgeführt.");
+            PhotonNetwork.ConnectUsingSettings();
+            PhotonNetwork.GameVersion = gameVersion;
+        }
     }
+
+    #endregion
+
+    #region MonoBehaviourPunCallbacks Callbacks
+
+    public override void OnConnectedToMaster()
+    {
+        Debug.Log("NetworkManager: OnConnectedToMaster() was called by PUN.");
+        if (!PhotonNetwork.InLobby)
+        {
+            PhotonNetwork.JoinLobby();
+        }
+    }
+
+    public override void OnJoinedLobby()
+    {
+        Debug.Log("NetworkManager: OnJoinedLobby() mit Lobby verbunden.");
+        PhotonNetwork.LoadLevel(2);
+    }
+
+    public override void OnDisconnected(DisconnectCause cause)
+    {
+        Debug.Log("NetworkManager: OnDisconnected() Reason " + cause.ToString());
+    }
+
+    #endregion
+
+
+
+    //void Spawn()
+    //  {
+    //    foreach (var player in PhotonNetwork.playerList)
+    //    {
+    //        print(player);
+    //      /*//if (i == 0)
+    //      //{
+    //      desk.transform.Find("PlayerName1").GetComponent<Text> ().text = player.NickName;
+    //      //}
+    //      //if (i == 1)
+    //      //{
+    //      //  desk.transform.Find("PlayerName2").GetComponent<Text> ().text = player.NickName;
+    //      //}
+    //      //if (i == 2)
+    //      //{
+    //      //  desk.transform.Find("PlayerName3").GetComponent<Text> ().text = player.NickName;
+    //      //}
+    //      //if (i == 3)
+    //      //{
+    //      //  desk.transform.Find("PlayerName4").GetComponent<Text> ().text = player.NickName;
+    //      //}
+    //      //i++;*/
+    //    }
+    //  }
+
+
 }
