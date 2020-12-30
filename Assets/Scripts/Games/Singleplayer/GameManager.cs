@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviour
 
     void SetupGame()
     {
-        cards = ShuffleCards.CardShuffle();
+        //cards = ShuffleCards.CardShuffle();
         ResetCards();
         GetTrumpf();
         GiveCards();

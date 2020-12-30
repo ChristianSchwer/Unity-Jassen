@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Photon.Pun;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -22,6 +23,8 @@ public class GameManagerMultiplayer : MonoBehaviour
 
     #endregion
 
+    PlayCard currentUnit;
+
     #region MonoBehaviour Callbacks
 
     void Update()
@@ -40,9 +43,10 @@ public class GameManagerMultiplayer : MonoBehaviour
 
     void SetupGame()
     {
-        cards = ShuffleCards.CardShuffle();
-        ResetCards();
-        GetTrumpf();
+        ShuffleCards.CardShuffle();
+        cards = ShuffleCards.ChangeCardToGameObject();
+        //ResetCards();
+        //GetTrumpf();
         GiveCards();
         //NextCard.GetCards();
     }
