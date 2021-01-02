@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System;
+using UnityEngine.UI;
 
 public class ShuffleCards : MonoBehaviourPun
 {
     #region Public Fields
 
+    public Text allCards;
     public GameObject E6;
     public GameObject E7;
     public GameObject E8;
@@ -48,6 +50,8 @@ public class ShuffleCards : MonoBehaviourPun
     public GameObject S13;
     public GameObject S14;
 
+    public string st;
+
     #endregion
 
     #region Private Fields
@@ -56,7 +60,14 @@ public class ShuffleCards : MonoBehaviourPun
     private GameObject playerHand;
     List<string> cardsName = new List<string>();
     List<GameObject> cards = new List<GameObject>();
-    private const byte CARDS_SHUFFLE_EVENT = 0;
+    List<GameObject> playerHand1 = new List<GameObject>();
+    List<string> playerCard1 = new List<string>();
+    List<string> allPlayerCards = new List<string>();
+    List<GameObject> playerHand2 = new List<GameObject>();
+    List<string> playerCard2 = new List<string>();
+    List<GameObject> playerHand3 = new List<GameObject>();
+    List<GameObject> playerHand4 = new List<GameObject>();
+    private const byte CARDS_SHUFFLE_EVENT = 1;
 
     #endregion
 
@@ -83,11 +94,7 @@ public class ShuffleCards : MonoBehaviourPun
                 cardsName.Add(s);
             }
             AddCards();
-            for (int i = 0; i <= 35; i++)
-            {
-                GameObject playerCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
-                playerCard.transform.SetParent(playerHand.transform, false);
-            }
+            GiveCards();
         }
     }
 
@@ -107,16 +114,36 @@ public class ShuffleCards : MonoBehaviourPun
             cardsName[i] = cardsName[j];
             cardsName[j] = temp;
         }
+        foreach (string s in cardsName)
+        {
+            st = string.Format("{0} {1}", st, s);
+        }
+        allCards.text = st;
+        for (int i = 0; i <= 35; i++)
+        {
+            allPlayerCards.Add(cardsName[i]);
+        }
 
-        object[] datas = new object[] { cardsName.ToArray() };
-
-        PhotonNetwork.RaiseEvent(CARDS_SHUFFLE_EVENT, datas, RaiseEventOptions.Default, SendOptions.SendUnreliable);
+        object[] datas = new object[] { allPlayerCards.ToArray() };
+        RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.Others };
+        PhotonNetwork.RaiseEvent(CARDS_SHUFFLE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
     }
 
     public List<GameObject> ChangeCardToGameObject()
     {
         AddCards();
         return cards;
+    }
+
+    public void GiveCards()
+    {
+        foreach (Player p in PhotonNetwork.PlayerList)
+        {
+            if (p.IsLocal)
+            {
+                GiveCardsToPlayer(p);
+            }
+        }
     }
 
     #endregion
@@ -311,6 +338,42 @@ public class ShuffleCards : MonoBehaviourPun
             if (cardName == "S14")
             {
                 cards.Add(S14);
+            }
+        }
+    }
+
+    private void GiveCardsToPlayer(Player p)
+    {
+        if (p.ActorNumber == 1)
+        {
+            for (int i = 0; i <= 8; i++)
+            {
+                GameObject playerCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
+                playerCard.transform.SetParent(playerHand.transform, false);
+            }
+        }
+        if (p.ActorNumber == 2)
+        {
+            for (int i = 9; i <= 17; i++)
+            {
+                GameObject playerCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
+                playerCard.transform.SetParent(playerHand.transform, false);
+            }
+        }
+        if (p.ActorNumber == 3)
+        {
+            for (int i = 18; i <= 26; i++)
+            {
+                GameObject playerCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
+                playerCard.transform.SetParent(playerHand.transform, false);
+            }
+        }
+        if (p.ActorNumber == 4)
+        {
+            for (int i = 27; i <= 35; i++)
+            {
+                GameObject playerCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
+                playerCard.transform.SetParent(playerHand.transform, false);
             }
         }
     }

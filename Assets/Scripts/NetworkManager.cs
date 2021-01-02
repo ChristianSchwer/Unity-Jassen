@@ -80,33 +80,4 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     }
 
     #endregion
-
-
-
-    //void Spawn()
-    //  {
-    //    foreach (var player in PhotonNetwork.playerList)
-    //    {
-    //        print(player);
-    //      /*//if (i == 0)
-    //      //{
-    //      desk.transform.Find("PlayerName1").GetComponent<Text> ().text = player.NickName;
-    //      //}
-    //      //if (i == 1)
-    //      //{
-    //      //  desk.transform.Find("PlayerName2").GetComponent<Text> ().text = player.NickName;
-    //      //}
-    //      //if (i == 2)
-    //      //{
-    //      //  desk.transform.Find("PlayerName3").GetComponent<Text> ().text = player.NickName;
-    //      //}
-    //      //if (i == 3)
-    //      //{
-    //      //  desk.transform.Find("PlayerName4").GetComponent<Text> ().text = player.NickName;
-    //      //}
-    //      //i++;*/
-    //    }
-    //  }
-
-
 }

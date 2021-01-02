@@ -21,7 +21,6 @@ public class PlayerListingsMenu : MonoBehaviourPunCallbacks
     public override void OnEnable()
     {
         base.OnEnable();
-        //SetReadyUp(false);
         GetCurrentRoomPlayers();
     }
 

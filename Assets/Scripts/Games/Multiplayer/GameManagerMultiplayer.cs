@@ -1,7 +1,10 @@
-﻿using Photon.Pun;
-using System.Collections;
+﻿using ExitGames.Client.Photon;
+using Photon.Pun;
+using Photon.Realtime;
 using System.Collections.Generic;
 using UnityEngine;
+
+public enum TurnState { START, PLAYERTURN1, PLAYERTURN2, PLAYERTURN3, PLAYERTURN4, WON, LOST }
 
 public class GameManagerMultiplayer : MonoBehaviour
 {
@@ -11,13 +14,16 @@ public class GameManagerMultiplayer : MonoBehaviour
     private GameObject playerHand;
     [SerializeField]
     private ShuffleCards ShuffleCards;
-    //[SerializeField]
-    //private NextCard NextCard;
+    [SerializeField]
+    private NextCard NextCard;
+
+    string trumpf;
 
     #endregion
 
     #region Public Fields
 
+    public TurnState state;
     public List<GameObject> cards = new List<GameObject>();
     public static int start;
 
@@ -26,6 +32,11 @@ public class GameManagerMultiplayer : MonoBehaviour
     PlayCard currentUnit;
 
     #region MonoBehaviour Callbacks
+
+    void Start()
+    {
+        state = TurnState.START;
+    }
 
     void Update()
     {
@@ -45,78 +56,53 @@ public class GameManagerMultiplayer : MonoBehaviour
     {
         ShuffleCards.CardShuffle();
         cards = ShuffleCards.ChangeCardToGameObject();
+
         //ResetCards();
         //GetTrumpf();
-        GiveCards();
+        ShuffleCards.GiveCards();
         //NextCard.GetCards();
     }
 
     void ResetCards()
     {
-        //foreach (GameObject card in cards)
-        //{
-        //    if (card.gameObject.name.Contains("9"))
-        //    {
-        //        currentUnit = card.GetComponent<PlayCard>();
-        //        string currentName = currentUnit.unitName.Substring(0, 1);
-        //        currentUnit.ResetSnell(currentName);
-        //    }
-        //    if (card.gameObject.name.Contains("11"))
-        //    {
-        //        currentUnit = card.GetComponent<PlayCard>();
-        //        string currentName = currentUnit.unitName.Substring(0, 1);
-        //        currentUnit.ResetBauer(currentName);
-        //    }
-        //}
+        foreach (GameObject card in cards)
+        {
+            if (card.gameObject.name.Contains("9"))
+            {
+                currentUnit = card.GetComponent<PlayCard>();
+                string currentName = currentUnit.unitName.Substring(0, 1);
+                currentUnit.ResetSnell(currentName);
+            }
+            if (card.gameObject.name.Contains("11"))
+            {
+                currentUnit = card.GetComponent<PlayCard>();
+                string currentName = currentUnit.unitName.Substring(0, 1);
+                currentUnit.ResetBauer(currentName);
+            }
+        }
     }
 
     void GetTrumpf()
     {
-        //currentUnit = cards[35].GetComponent<PlayCard>();
-        //trumpf = currentUnit.unitName.Substring(0, 1);
+        currentUnit = cards[35].GetComponent<PlayCard>();
+        trumpf = currentUnit.unitName.Substring(0, 1);
         //Trumpf.text = trumpf;
-        //foreach (GameObject card in cards)
-        //{
-        //    if (card.gameObject.name.Contains(trumpf + 9))
-        //    {
-        //        currentUnit = card.GetComponent<PlayCard>();
-        //        currentUnit.ChangeSnell(trumpf);
-        //    }
-        //    if (card.gameObject.name.Contains(trumpf + 11))
-        //    {
-        //        currentUnit = card.GetComponent<PlayCard>();
-        //        currentUnit.ChangeBauer(trumpf);
-        //    }
-        //}
-        //NextCard.Trumpf(trumpf);
-    }
-
-    public void GiveCards()
-    {
-        for (int i = 0; i <= 35; i++)
+        foreach (GameObject card in cards)
         {
-            //if (i <= 8)
-            //{
-                GameObject playerCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
-                playerCard.transform.SetParent(playerHand.transform, false);
-            //}
-            //if (i > 8 && i <= 17)
-            //{
-            //    GameObject enemyCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
-            //    enemyCard.transform.SetParent(PlayerArea2.transform, false);
-            //}
-            //if (i > 17 && i <= 26)
-            //{
-            //    GameObject enemyCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
-            //    enemyCard.transform.SetParent(PlayerArea3.transform, false);
-            //}
-            //if (i > 26 && i <= 35)
-            //{
-            //    GameObject enemyCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
-            //    enemyCard.transform.SetParent(PlayerArea4.transform, false);
-            //}
+            if (card.gameObject.name.Contains(trumpf + 9))
+            {
+                currentUnit = card.GetComponent<PlayCard>();
+                currentUnit.ChangeSnell(trumpf);
+            }
+            if (card.gameObject.name.Contains(trumpf + 11))
+            {
+                currentUnit = card.GetComponent<PlayCard>();
+                currentUnit.ChangeBauer(trumpf);
+            }
         }
+        NextCard.Trumpf(trumpf);
     }
 
     #endregion
+
 }

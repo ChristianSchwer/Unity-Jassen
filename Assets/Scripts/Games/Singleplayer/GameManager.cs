@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public enum TurnState { START, PLAYERTURN1, PLAYERTURN2, PLAYERTURN3, PLAYERTURN4, WON, LOST }
+public enum TurnStateSingleplayer { START, PLAYERTURN1, PLAYERTURN2, PLAYERTURN3, PLAYERTURN4, WON, LOST }
 
 public class GameManager : MonoBehaviour
 {
@@ -46,18 +46,19 @@ public class GameManager : MonoBehaviour
     PlayCard playerUnit4;
     PlayCard currentUnit;
 
-    public TurnState state;
+    public TurnStateSingleplayer state;
 
     // Start is called before the first frame update
     void Start()
     {
-        state = TurnState.START;
+        state = TurnStateSingleplayer.START;
         SetupGame();
     }
 
     void SetupGame()
     {
-        //cards = ShuffleCards.CardShuffle();
+        ShuffleCards.CardShuffle();
+        cards = ShuffleCards.ChangeCardToGameObject();
         ResetCards();
         GetTrumpf();
         GiveCards();
@@ -133,7 +134,7 @@ public class GameManager : MonoBehaviour
 
     public void Player1Turn()
     {
-        state = TurnState.PLAYERTURN1;
+        state = TurnStateSingleplayer.PLAYERTURN1;
         if (GetChildCount() == 4)
         {
             CalculateRoundWinner("player1");
@@ -151,7 +152,7 @@ public class GameManager : MonoBehaviour
 
     public void Player2Turn()
     {
-        state = TurnState.PLAYERTURN2;
+        state = TurnStateSingleplayer.PLAYERTURN2;
         if (GetChildCount() == 4)
         {
             CalculateRoundWinner("player2");
@@ -169,7 +170,7 @@ public class GameManager : MonoBehaviour
 
     public void Player3Turn()
     {
-        state = TurnState.PLAYERTURN3;
+        state = TurnStateSingleplayer.PLAYERTURN3;
         if (GetChildCount() == 4)
         {
             CalculateRoundWinner("player3");
@@ -187,7 +188,7 @@ public class GameManager : MonoBehaviour
 
     public void Player4Turn()
     {
-        state = TurnState.PLAYERTURN4;
+        state = TurnStateSingleplayer.PLAYERTURN4;
         if (GetChildCount() == 4)
         {
             CalculateRoundWinner("player4");
@@ -399,19 +400,19 @@ public class GameManager : MonoBehaviour
         }
         if (yard1 > yard2 && yard1 > yard3 && yard1 > yard4)
         {
-            state = TurnState.WON;
+            state = TurnStateSingleplayer.WON;
         }
         if (yard2 > yard1 && yard2 > yard3 && yard2 > yard4)
         {
-            state = TurnState.WON;
+            state = TurnStateSingleplayer.WON;
         }
         if (yard3 > yard1 && yard3 > yard2 && yard3 > yard4)
         {
-            state = TurnState.WON;
+            state = TurnStateSingleplayer.WON;
         }
         if (yard4 > yard1 && yard4 > yard2 && yard4 > yard3)
         {
-            state = TurnState.WON;
+            state = TurnStateSingleplayer.WON;
         }
         Score1.text = yard1.ToString();
         Score2.text = yard2.ToString();
