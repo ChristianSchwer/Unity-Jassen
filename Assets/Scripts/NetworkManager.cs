@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
 using System;
+using ExitGames.Client.Photon;
 
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
@@ -16,6 +17,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private GameObject controlPanel;
     [SerializeField]
     private GameObject progressLabel;
+    private const byte CARDS_SHUFFLE_EVENT = 1;
 
     #endregion
 

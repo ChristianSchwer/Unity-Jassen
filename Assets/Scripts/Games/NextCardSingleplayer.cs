@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Photon.Realtime;
+using Photon.Pun;
+using ExitGames.Client.Photon;
 
-public class NextCard : MonoBehaviour
+public class NextCardSingleplayer : MonoBehaviour
 {
     GraphicRaycaster m_Raycaster;
     PointerEventData m_PointerEventData;
@@ -16,19 +19,25 @@ public class NextCard : MonoBehaviour
     string trumpf;
     int move;
 
-    public GameObject PlayerArea1;
-    public GameObject PlayerArea2;
-    public GameObject PlayerArea3;
-    public GameObject PlayerArea4;
+    public GameObject playerHand;
 
     List<GameObject> player1 = new List<GameObject>();
     List<GameObject> player2 = new List<GameObject>();
     List<GameObject> player3 = new List<GameObject>();
     List<GameObject> player4 = new List<GameObject>();
+    List<GameObject> cards = new List<GameObject>();
+
+    public GameObject PlayerArea1;
+    public GameObject PlayerArea2;
+    public GameObject PlayerArea3;
+    public GameObject PlayerArea4;
 
     //TurnState state;          Enum over all scripts, dosn't work
 
     public GameManager gameManager;
+
+    [SerializeField]
+    private ShuffleCards ShuffleCards;
     
     void Start()
     {
@@ -92,7 +101,7 @@ public class NextCard : MonoBehaviour
                                         i.gameObject.transform.SetParent(DropZone.transform, false);
                                         i.gameObject.GetComponent<PlayCard>().SetPlayer(player);
                                         player = "None";
-                                        player1.Remove(i.gameObject);
+                                        player1.Remove(i.gameObject); 
                                         gameManager.Player2Turn();
                                     }
                                 }

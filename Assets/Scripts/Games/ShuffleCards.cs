@@ -59,7 +59,7 @@ public class ShuffleCards : MonoBehaviourPun
     [SerializeField]
     private GameObject playerHand;
     List<string> cardsName = new List<string>();
-    List<GameObject> cards = new List<GameObject>();
+    public List<GameObject> cards = new List<GameObject>();
     List<GameObject> playerHand1 = new List<GameObject>();
     List<string> playerCard1 = new List<string>();
     List<string> allPlayerCards = new List<string>();

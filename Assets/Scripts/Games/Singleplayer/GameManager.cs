@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     public GameObject PlayerArea4;
     public GameObject DropZone;
     public GameObject Yard;
-    public NextCard NextCard;
+    public NextCardSingleplayer NextCard;
     public ShuffleCards ShuffleCards;
 
     public Text PlayerTurn;
