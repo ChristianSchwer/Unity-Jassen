@@ -12,7 +12,6 @@ public class ShuffleCards : MonoBehaviourPun
 {
     #region Public Fields
 
-    public Text allCards;
     public GameObject E6;
     public GameObject E7;
     public GameObject E8;
@@ -50,8 +49,6 @@ public class ShuffleCards : MonoBehaviourPun
     public GameObject S13;
     public GameObject S14;
 
-    public string st;
-
     #endregion
 
     #region Private Fields
@@ -60,13 +57,7 @@ public class ShuffleCards : MonoBehaviourPun
     private GameObject playerHand;
     List<string> cardsName = new List<string>();
     public List<GameObject> cards = new List<GameObject>();
-    List<GameObject> playerHand1 = new List<GameObject>();
-    List<string> playerCard1 = new List<string>();
     List<string> allPlayerCards = new List<string>();
-    List<GameObject> playerHand2 = new List<GameObject>();
-    List<string> playerCard2 = new List<string>();
-    List<GameObject> playerHand3 = new List<GameObject>();
-    List<GameObject> playerHand4 = new List<GameObject>();
 
     RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
     private const byte CARDS_SHUFFLE_EVENT = 1;
@@ -125,16 +116,10 @@ public class ShuffleCards : MonoBehaviourPun
             cardsName[i] = cardsName[j];
             cardsName[j] = temp;
         }
-        foreach (string s in cardsName)
-        {
-            st = string.Format("{0} {1}", st, s);
-        }
-        allCards.text = st;
         for (int i = 0; i <= 35; i++)
         {
             allPlayerCards.Add(cardsName[i]);
         }
-
         object[] datas = new object[] { allPlayerCards.ToArray() };
         RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.Others };
         PhotonNetwork.RaiseEvent(CARDS_SHUFFLE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
@@ -362,9 +347,9 @@ public class ShuffleCards : MonoBehaviourPun
                 GameObject playerCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
                 playerCard.transform.SetParent(playerHand.transform, false);
                 player1.Add(cards[i].name);
-                object[] data = new object[] { player1.ToArray() };
-                PhotonNetwork.RaiseEvent(SEND_PLAYER1HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
             }
+            object[] data = new object[] { player1.ToArray() };
+            PhotonNetwork.RaiseEvent(SEND_PLAYER1HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
         }
         if (p.ActorNumber == 2)
         {
@@ -373,9 +358,9 @@ public class ShuffleCards : MonoBehaviourPun
                 GameObject playerCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
                 playerCard.transform.SetParent(playerHand.transform, false);
                 player2.Add(cards[i].name);
-                object[] data = new object[] { player2.ToArray() };
-                PhotonNetwork.RaiseEvent(SEND_PLAYER2HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
             }
+            object[] data = new object[] { player2.ToArray() };
+            PhotonNetwork.RaiseEvent(SEND_PLAYER2HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
         }
         if (p.ActorNumber == 3)
         {
@@ -384,9 +369,9 @@ public class ShuffleCards : MonoBehaviourPun
                 GameObject playerCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
                 playerCard.transform.SetParent(playerHand.transform, false);
                 player3.Add(cards[i].name);
-                object[] data = new object[] { player3.ToArray() };
-                PhotonNetwork.RaiseEvent(SEND_PLAYER3HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
             }
+            object[] data = new object[] { player3.ToArray() };
+            PhotonNetwork.RaiseEvent(SEND_PLAYER3HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
         }
         if (p.ActorNumber == 4)
         {
@@ -395,9 +380,9 @@ public class ShuffleCards : MonoBehaviourPun
                 GameObject playerCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
                 playerCard.transform.SetParent(playerHand.transform, false);
                 player4.Add(cards[i].name);
-                object[] data = new object[] { player4.ToArray() };
-                PhotonNetwork.RaiseEvent(SEND_PLAYER4HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
             }
+            object[] data = new object[] { player4.ToArray() };
+            PhotonNetwork.RaiseEvent(SEND_PLAYER4HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
         }
     }
 

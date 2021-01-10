@@ -35,8 +35,6 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     [SerializeField]
     private GameObject playerHand;
     [SerializeField]
-    private GameObject playerHandOverlay;
-    [SerializeField]
     private GameObject dropZone;
     [SerializeField]
     private GameObject yard;
@@ -145,7 +143,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         ResetCards();
         GetTrumpf();
         ShuffleCards.GiveCards();
-        NextCard.GetCards();
+        object[] datas = new object[] { true, 1 };
+        PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
     }
 
     void ResetCards()
@@ -344,16 +343,19 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         }
         if (turn == "player2")
         {
+            NextCard.FirstPlayer(1);
             object[] datas = new object[] { true, 2 };
             PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
         if (turn == "player3")
         {
+            NextCard.FirstPlayer(1);
             object[] datas = new object[] { true, 3 };
             PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
         if (turn == "player4")
         {
+            NextCard.FirstPlayer(1);
             object[] datas = new object[] { true, 4 };
             PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }

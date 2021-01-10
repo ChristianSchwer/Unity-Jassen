@@ -37,6 +37,7 @@ public class NextCardMultiplayer : MonoBehaviour
     private const byte SEND_PLAYER3HAND_EVENT = 9;
     private const byte SEND_PLAYER4HAND_EVENT = 10;
     private const byte SEND_TRUMPF_EVENT = 11;
+    private const byte SEND_FIRSTCARD_EVENT = 12;
 
     //TurnState state;          Enum over all scripts, dosn't work
 
@@ -112,9 +113,11 @@ public class NextCardMultiplayer : MonoBehaviour
                                 {
                                     firstLetter = result.gameObject.GetComponent<PlayCard>().unitName.Substring(0, 1);
                                     move = 2;
+                                    object[] firstcarddatas = new object[] { firstLetter };
+                                    PhotonNetwork.RaiseEvent(SEND_FIRSTCARD_EVENT, firstcarddatas, raiseEventOptions, SendOptions.SendReliable);
                                     object[] movedatas = new object[] { move };
                                     PhotonNetwork.RaiseEvent(CURRENT_MOVE_EVENT, movedatas, raiseEventOptions, SendOptions.SendReliable);
-                                    object[] datas = new object[] { result.gameObject.name, player, firstLetter };
+                                    object[] datas = new object[] { result.gameObject.name, player };
                                     PhotonNetwork.RaiseEvent(CURRENT_CARDS_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
                                     RemoveCard(result, player);
                                 }
@@ -122,66 +125,43 @@ public class NextCardMultiplayer : MonoBehaviour
                             else
                             {
                                 bool check = true;
-                                Debug.Log(player);
                                 if (player == "player1")
                                 {
-                                    foreach (string card in player1)
-                                    {
-                                        Debug.Log(card);
-                                    }
-                                    check = CheckList(player1, firstLetter);
+                                    check = CheckList(player1, firstLetter, trumpf);
                                 }
                                 if (player == "player2")
                                 {
-                                    foreach (string card in player2)
-                                    {
-                                        Debug.Log(card);
-                                    }
-                                    check = CheckList(player2, firstLetter);
+                                    check = CheckList(player2, firstLetter, trumpf);
                                 }
                                 if (player == "player3")
                                 {
-                                    foreach (string card in player3)
-                                    {
-                                        Debug.Log(card);
-                                    }
-                                    check = CheckList(player3, firstLetter);
+                                    check = CheckList(player3, firstLetter, trumpf);
                                 }
                                 if (player == "player4")
                                 {
-                                    foreach (string card in player4)
-                                    {
-                                        Debug.Log(card);
-                                    }
-                                    check = CheckList(player4, firstLetter);
+                                    check = CheckList(player4, firstLetter, trumpf);
                                 }
-                                Debug.Log(check);
                                 if (!check)
                                 {
                                     if (result.gameObject.name.Contains("E") || result.gameObject.name.Contains("B") || result.gameObject.name.Contains("H") || result.gameObject.name.Contains("S"))
                                     {
-                                        object[] datas = new object[] { result.gameObject.name, player, firstLetter };
+                                        object[] datas = new object[] { result.gameObject.name, player };
                                         PhotonNetwork.RaiseEvent(CURRENT_CARDS_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
                                         RemoveCard(result, player);
                                     }
                                 }
                                 else
                                 {
-                                    Debug.Log(result.gameObject.name);
-                                    Debug.Log(firstLetter);
-                                    Debug.Log(trumpf);
                                     if (result.gameObject.name.Contains(firstLetter) || result.gameObject.name.Contains(trumpf))
                                     {
-                                        Debug.Log("inn");
-                                        Debug.Log(result.gameObject.name);
-                                        object[] datas = new object[] { result.gameObject.name, player, firstLetter };
+                                        object[] datas = new object[] { result.gameObject.name, player };
                                         PhotonNetwork.RaiseEvent(CURRENT_CARDS_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
                                         RemoveCard(result, player);
                                     }
-                                    else
-                                    {
-                                        Debug.Log("out");
-                                    }
+                                    //else
+                                    //{
+                                    //    Debug.Log("out");
+                                    //}
                                 }
                             }
                         }
@@ -226,8 +206,7 @@ public class NextCardMultiplayer : MonoBehaviour
     {
         if (first == 1)
         {
-            move = 1;
-            object[] movedatas = new object[] { move };
+            object[] movedatas = new object[] { first };
             PhotonNetwork.RaiseEvent(CURRENT_MOVE_EVENT, movedatas, raiseEventOptions, SendOptions.SendReliable);
         }
     }
@@ -238,53 +217,15 @@ public class NextCardMultiplayer : MonoBehaviour
         PhotonNetwork.RaiseEvent(SEND_TRUMPF_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
     }
 
-    public void GetCards()
-    {
-        foreach (Player p in PhotonNetwork.PlayerList)
-        {
-            if (p.IsLocal)
-            {
-                string playerHandCards = p.ActorNumber.ToString();
-                playerHandCards.Substring(0, 1);
-                for (int i = 0; i < playerHand.transform.childCount; i++)
-                {
-                    GameObject child = playerHand.transform.GetChild(i).gameObject;
-                    string playerList = "player" + playerHandCards;
-                    if (playerList == "player1")
-                    {
-                        player1.Add(child.name);
-                    }
-                    if (playerList == "player2")
-                    {
-                        player2.Add(child.name);
-                        //object[] data = new object[] { player2.ToArray() };
-                        //PhotonNetwork.RaiseEvent(SEND_PLAYERHAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
-                    }
-                    if (playerList == "player3")
-                    {
-                        player3.Add(child.name);
-                        //object[] data = new object[] { player3.ToArray() };
-                        //PhotonNetwork.RaiseEvent(SEND_PLAYERHAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
-                    }
-                    if (playerList == "player4")
-                    {
-                        player4.Add(child.name);
-                        //object[] data = new object[] { player4.ToArray() };
-                        //PhotonNetwork.RaiseEvent(SEND_PLAYERHAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
-                    }
-                }
-            }
-        }
-        object[] datas = new object[] { true, 1 };
-        PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
-    }
-
     private void RemoveCard(RaycastResult i, string player)
     {
         char[] removeWord = { '(', 'C', 'l', 'o', 'n', 'e', ')' };
         if (player == "player1")
         {
             player = "None";
+            foreach (string s in player1)
+            {
+            }
             player1.Remove(i.gameObject.name.TrimEnd(removeWord));
             Destroy(i.gameObject);
             object[] datas = new object[] { true, 2 };
@@ -292,15 +233,9 @@ public class NextCardMultiplayer : MonoBehaviour
         }
         if (player == "player2")
         {
-            Debug.Log("in");
             player = "None";
-            foreach (string card in player2)
-            {
-                Debug.Log(card);
-            }
-            Debug.Log(i.gameObject.name.TrimEnd(removeWord));
             player2.Remove(i.gameObject.name.TrimEnd(removeWord));
-            Destroy(i.gameObject); 
+            Destroy(i.gameObject);
             object[] datas = new object[] { true, 3 };
             PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
@@ -322,17 +257,28 @@ public class NextCardMultiplayer : MonoBehaviour
         }
     }
 
-    bool CheckList(List<string> cards, string Letter)
+    bool CheckList(List<string> cards, string Letter, string currentTrumpf)
     {
         //Check if firstLetter in List
         List<string> letterCards = new List<string>();
-        Debug.Log(Letter);
         foreach (string card in cards)
         {
-            Debug.Log(card.Substring(0, 1));
             if (card.Substring(0,1) == Letter)
             {
                 letterCards.Add(card);
+            }
+        }
+        if (firstLetter == currentTrumpf)
+        {
+            if (letterCards.Count == 1)
+            {
+                foreach (string card in letterCards)
+                {
+                    if (card.Contains("11"))
+                    {
+                        return false;
+                    }
+                }
             }
         }
         if (letterCards.Count == 0)
@@ -362,7 +308,6 @@ public class NextCardMultiplayer : MonoBehaviour
             object[] datas = (object[])obj.CustomData;
             string cardName = (string)datas[0];
             string unitPlayer = (string)datas[1];
-            string firstCard = (string)datas[2];
             char[] removeWord = { '(', 'C', 'l', 'o', 'n', 'e', ')' };
             cardName = cardName.TrimEnd(removeWord);
             if (cardName.Contains("15"))
@@ -395,7 +340,6 @@ public class NextCardMultiplayer : MonoBehaviour
                     playerCard.transform.SetParent(DropZone.transform, false);
                 }
             }
-            firstLetter = firstCard;
         }
         if (obj.Code == SET_AKTIVE_EVENT)
         {
@@ -422,13 +366,10 @@ public class NextCardMultiplayer : MonoBehaviour
         }
         if (obj.Code == SEND_PLAYER2HAND_EVENT)
         {
-            Debug.Log("send");
             object[] datas = (object[])obj.CustomData;
             Array array = (Array)datas[0];
-            Debug.Log(array);
             foreach (string s in array)
             {
-                Debug.Log(s);
                 player2.Add(s);
             }
         }
@@ -455,6 +396,12 @@ public class NextCardMultiplayer : MonoBehaviour
             object[] datas = (object[])obj.CustomData;
             string newtrumpf = (string)datas[0];
             trumpf = newtrumpf;
+        }
+        if (obj.Code == SEND_FIRSTCARD_EVENT)
+        {
+            object[] datas = (object[])obj.CustomData;
+            string firstCard = (string)datas[0];
+            firstLetter = firstCard;
         }
     }
 }
