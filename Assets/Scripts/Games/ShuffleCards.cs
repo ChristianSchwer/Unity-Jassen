@@ -67,7 +67,18 @@ public class ShuffleCards : MonoBehaviourPun
     List<string> playerCard2 = new List<string>();
     List<GameObject> playerHand3 = new List<GameObject>();
     List<GameObject> playerHand4 = new List<GameObject>();
+
+    RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
     private const byte CARDS_SHUFFLE_EVENT = 1;
+    private const byte SEND_PLAYER1HAND_EVENT = 7;
+    private const byte SEND_PLAYER2HAND_EVENT = 8;
+    private const byte SEND_PLAYER3HAND_EVENT = 9;
+    private const byte SEND_PLAYER4HAND_EVENT = 10;
+
+    List<string> player1 = new List<string>();
+    List<string> player2 = new List<string>();
+    List<string> player3 = new List<string>();
+    List<string> player4 = new List<string>();
 
     #endregion
 
@@ -350,6 +361,9 @@ public class ShuffleCards : MonoBehaviourPun
             {
                 GameObject playerCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
                 playerCard.transform.SetParent(playerHand.transform, false);
+                player1.Add(cards[i].name);
+                object[] data = new object[] { player1.ToArray() };
+                PhotonNetwork.RaiseEvent(SEND_PLAYER1HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
             }
         }
         if (p.ActorNumber == 2)
@@ -358,6 +372,9 @@ public class ShuffleCards : MonoBehaviourPun
             {
                 GameObject playerCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
                 playerCard.transform.SetParent(playerHand.transform, false);
+                player2.Add(cards[i].name);
+                object[] data = new object[] { player2.ToArray() };
+                PhotonNetwork.RaiseEvent(SEND_PLAYER2HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
             }
         }
         if (p.ActorNumber == 3)
@@ -366,6 +383,9 @@ public class ShuffleCards : MonoBehaviourPun
             {
                 GameObject playerCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
                 playerCard.transform.SetParent(playerHand.transform, false);
+                player3.Add(cards[i].name);
+                object[] data = new object[] { player3.ToArray() };
+                PhotonNetwork.RaiseEvent(SEND_PLAYER3HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
             }
         }
         if (p.ActorNumber == 4)
@@ -374,6 +394,9 @@ public class ShuffleCards : MonoBehaviourPun
             {
                 GameObject playerCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
                 playerCard.transform.SetParent(playerHand.transform, false);
+                player4.Add(cards[i].name);
+                object[] data = new object[] { player4.ToArray() };
+                PhotonNetwork.RaiseEvent(SEND_PLAYER4HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
             }
         }
     }

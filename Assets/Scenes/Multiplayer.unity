@@ -1035,6 +1035,7 @@ MonoBehaviour:
   playerHand: {fileID: 1753432120}
   playerHandOverlay: {fileID: 1076996678}
   dropZone: {fileID: 193019645}
+  yard: {fileID: 1278865877}
   currentPlayer: {fileID: 833183375}
   trumpf: {fileID: 1478904260}
 --- !u!4 &878446714

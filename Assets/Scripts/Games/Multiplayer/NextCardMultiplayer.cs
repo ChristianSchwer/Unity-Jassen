@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 using Photon.Realtime;
 using Photon.Pun;
 using ExitGames.Client.Photon;
+using System;
 
 public class NextCardMultiplayer : MonoBehaviour
 {
@@ -21,15 +22,21 @@ public class NextCardMultiplayer : MonoBehaviour
 
     public GameObject playerHand;
 
-    List<GameObject> player1 = new List<GameObject>();
-    List<GameObject> player2 = new List<GameObject>();
-    List<GameObject> player3 = new List<GameObject>();
-    List<GameObject> player4 = new List<GameObject>();
+    List<string> player1 = new List<string>();
+    List<string> player2 = new List<string>();
+    List<string> player3 = new List<string>();
+    List<string> player4 = new List<string>();
     List<GameObject> cards = new List<GameObject>();
 
     RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
     private const byte CURRENT_CARDS_EVENT = 4;
     private const byte SET_AKTIVE_EVENT = 5;
+    private const byte CURRENT_MOVE_EVENT = 6;
+    private const byte SEND_PLAYER1HAND_EVENT = 7;
+    private const byte SEND_PLAYER2HAND_EVENT = 8;
+    private const byte SEND_PLAYER3HAND_EVENT = 9;
+    private const byte SEND_PLAYER4HAND_EVENT = 10;
+    private const byte SEND_TRUMPF_EVENT = 11;
 
     //TurnState state;          Enum over all scripts, dosn't work
 
@@ -103,32 +110,77 @@ public class NextCardMultiplayer : MonoBehaviour
                             {
                                 if (result.gameObject.name.Contains("E") || result.gameObject.name.Contains("B") || result.gameObject.name.Contains("H") || result.gameObject.name.Contains("S"))
                                 {
-                                    object[] datas = new object[] { result.gameObject.name };
-                                    PhotonNetwork.RaiseEvent(CURRENT_CARDS_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
                                     firstLetter = result.gameObject.GetComponent<PlayCard>().unitName.Substring(0, 1);
                                     move = 2;
+                                    object[] movedatas = new object[] { move };
+                                    PhotonNetwork.RaiseEvent(CURRENT_MOVE_EVENT, movedatas, raiseEventOptions, SendOptions.SendReliable);
+                                    object[] datas = new object[] { result.gameObject.name, player, firstLetter };
+                                    PhotonNetwork.RaiseEvent(CURRENT_CARDS_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
                                     RemoveCard(result, player);
                                 }
                             }
                             else
                             {
-                                bool check = CheckList(player1, firstLetter);
-                                if (check == false)
+                                bool check = true;
+                                Debug.Log(player);
+                                if (player == "player1")
+                                {
+                                    foreach (string card in player1)
+                                    {
+                                        Debug.Log(card);
+                                    }
+                                    check = CheckList(player1, firstLetter);
+                                }
+                                if (player == "player2")
+                                {
+                                    foreach (string card in player2)
+                                    {
+                                        Debug.Log(card);
+                                    }
+                                    check = CheckList(player2, firstLetter);
+                                }
+                                if (player == "player3")
+                                {
+                                    foreach (string card in player3)
+                                    {
+                                        Debug.Log(card);
+                                    }
+                                    check = CheckList(player3, firstLetter);
+                                }
+                                if (player == "player4")
+                                {
+                                    foreach (string card in player4)
+                                    {
+                                        Debug.Log(card);
+                                    }
+                                    check = CheckList(player4, firstLetter);
+                                }
+                                Debug.Log(check);
+                                if (!check)
                                 {
                                     if (result.gameObject.name.Contains("E") || result.gameObject.name.Contains("B") || result.gameObject.name.Contains("H") || result.gameObject.name.Contains("S"))
                                     {
-                                        object[] datas = new object[] { result.gameObject.name };
+                                        object[] datas = new object[] { result.gameObject.name, player, firstLetter };
                                         PhotonNetwork.RaiseEvent(CURRENT_CARDS_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
                                         RemoveCard(result, player);
                                     }
                                 }
                                 else
                                 {
+                                    Debug.Log(result.gameObject.name);
+                                    Debug.Log(firstLetter);
+                                    Debug.Log(trumpf);
                                     if (result.gameObject.name.Contains(firstLetter) || result.gameObject.name.Contains(trumpf))
                                     {
-                                        object[] datas = new object[] { result.gameObject.name };
+                                        Debug.Log("inn");
+                                        Debug.Log(result.gameObject.name);
+                                        object[] datas = new object[] { result.gameObject.name, player, firstLetter };
                                         PhotonNetwork.RaiseEvent(CURRENT_CARDS_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
                                         RemoveCard(result, player);
+                                    }
+                                    else
+                                    {
+                                        Debug.Log("out");
                                     }
                                 }
                             }
@@ -175,12 +227,15 @@ public class NextCardMultiplayer : MonoBehaviour
         if (first == 1)
         {
             move = 1;
+            object[] movedatas = new object[] { move };
+            PhotonNetwork.RaiseEvent(CURRENT_MOVE_EVENT, movedatas, raiseEventOptions, SendOptions.SendReliable);
         }
     }
 
     public void Trumpf(string newtrumpf)
     {
-        trumpf = newtrumpf;
+        object[] datas = new object[] { newtrumpf };
+        PhotonNetwork.RaiseEvent(SEND_TRUMPF_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
     }
 
     public void GetCards()
@@ -197,19 +252,25 @@ public class NextCardMultiplayer : MonoBehaviour
                     string playerList = "player" + playerHandCards;
                     if (playerList == "player1")
                     {
-                        player1.Add(child);
+                        player1.Add(child.name);
                     }
                     if (playerList == "player2")
                     {
-                        player2.Add(child);
+                        player2.Add(child.name);
+                        //object[] data = new object[] { player2.ToArray() };
+                        //PhotonNetwork.RaiseEvent(SEND_PLAYERHAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
                     }
                     if (playerList == "player3")
                     {
-                        player3.Add(child);
+                        player3.Add(child.name);
+                        //object[] data = new object[] { player3.ToArray() };
+                        //PhotonNetwork.RaiseEvent(SEND_PLAYERHAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
                     }
                     if (playerList == "player4")
                     {
-                        player4.Add(child);
+                        player4.Add(child.name);
+                        //object[] data = new object[] { player4.ToArray() };
+                        //PhotonNetwork.RaiseEvent(SEND_PLAYERHAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
                     }
                 }
             }
@@ -220,18 +281,25 @@ public class NextCardMultiplayer : MonoBehaviour
 
     private void RemoveCard(RaycastResult i, string player)
     {
+        char[] removeWord = { '(', 'C', 'l', 'o', 'n', 'e', ')' };
         if (player == "player1")
         {
             player = "None";
-            player1.Remove(i.gameObject);
+            player1.Remove(i.gameObject.name.TrimEnd(removeWord));
             Destroy(i.gameObject);
             object[] datas = new object[] { true, 2 };
             PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
         if (player == "player2")
         {
+            Debug.Log("in");
             player = "None";
-            player2.Remove(i.gameObject);
+            foreach (string card in player2)
+            {
+                Debug.Log(card);
+            }
+            Debug.Log(i.gameObject.name.TrimEnd(removeWord));
+            player2.Remove(i.gameObject.name.TrimEnd(removeWord));
             Destroy(i.gameObject); 
             object[] datas = new object[] { true, 3 };
             PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
@@ -239,7 +307,7 @@ public class NextCardMultiplayer : MonoBehaviour
         if (player == "player3")
         {
             player = "None";
-            player3.Remove(i.gameObject);
+            player3.Remove(i.gameObject.name.TrimEnd(removeWord));
             Destroy(i.gameObject);
             object[] datas = new object[] { true, 4 };
             PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
@@ -247,20 +315,22 @@ public class NextCardMultiplayer : MonoBehaviour
         if (player == "player4")
         {
             player = "None";
-            player4.Remove(i.gameObject);
+            player4.Remove(i.gameObject.name.TrimEnd(removeWord));
             Destroy(i.gameObject);
             object[] datas = new object[] { true, 1 };
             PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
     }
 
-    bool CheckList(List<GameObject> cards, string Letter)
+    bool CheckList(List<string> cards, string Letter)
     {
         //Check if firstLetter in List
-        List<GameObject> letterCards = new List<GameObject>();
-        foreach (GameObject card in cards)
+        List<string> letterCards = new List<string>();
+        Debug.Log(Letter);
+        foreach (string card in cards)
         {
-            if (card.GetComponent<PlayCard>().unitName.Substring(0, 1) == Letter)
+            Debug.Log(card.Substring(0, 1));
+            if (card.Substring(0,1) == Letter)
             {
                 letterCards.Add(card);
             }
@@ -291,6 +361,8 @@ public class NextCardMultiplayer : MonoBehaviour
         {
             object[] datas = (object[])obj.CustomData;
             string cardName = (string)datas[0];
+            string unitPlayer = (string)datas[1];
+            string firstCard = (string)datas[2];
             char[] removeWord = { '(', 'C', 'l', 'o', 'n', 'e', ')' };
             cardName = cardName.TrimEnd(removeWord);
             if (cardName.Contains("15"))
@@ -318,10 +390,12 @@ public class NextCardMultiplayer : MonoBehaviour
             {
                 if (card.name == cardName)
                 {
+                    card.gameObject.GetComponent<PlayCard>().SetPlayer(unitPlayer);
                     GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
                     playerCard.transform.SetParent(DropZone.transform, false);
                 }
-            }                
+            }
+            firstLetter = firstCard;
         }
         if (obj.Code == SET_AKTIVE_EVENT)
         {
@@ -330,6 +404,57 @@ public class NextCardMultiplayer : MonoBehaviour
             int nextPlayer = (int)datas[1];
             playerHandOverlay.SetActive(active);
             gameManagerMultiplayer.activePlayer = nextPlayer;
+        }
+        if (obj.Code == CURRENT_MOVE_EVENT)
+        {
+            object[] datas = (object[])obj.CustomData;
+            int playerMove = (int)datas[0];
+            move = playerMove;
+        }
+        if (obj.Code == SEND_PLAYER1HAND_EVENT)
+        {
+            object[] datas = (object[])obj.CustomData;
+            Array array = (Array)datas[0];
+            foreach (string s in array)
+            {
+                player1.Add(s);
+            }
+        }
+        if (obj.Code == SEND_PLAYER2HAND_EVENT)
+        {
+            Debug.Log("send");
+            object[] datas = (object[])obj.CustomData;
+            Array array = (Array)datas[0];
+            Debug.Log(array);
+            foreach (string s in array)
+            {
+                Debug.Log(s);
+                player2.Add(s);
+            }
+        }
+        if (obj.Code == SEND_PLAYER3HAND_EVENT)
+        {
+            object[] datas = (object[])obj.CustomData;
+            Array array = (Array)datas[0];
+            foreach (string s in array)
+            {
+                player3.Add(s);
+            }
+        }
+        if (obj.Code == SEND_PLAYER4HAND_EVENT)
+        {
+            object[] datas = (object[])obj.CustomData;
+            Array array = (Array)datas[0];
+            foreach (string s in array)
+            {
+                player4.Add(s);
+            }
+        }
+        if (obj.Code == SEND_TRUMPF_EVENT)
+        {
+            object[] datas = (object[])obj.CustomData;
+            string newtrumpf = (string)datas[0];
+            trumpf = newtrumpf;
         }
     }
 }
