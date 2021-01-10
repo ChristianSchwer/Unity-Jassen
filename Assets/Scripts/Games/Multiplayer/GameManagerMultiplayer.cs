@@ -42,12 +42,21 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     private Text currentPlayer;
     [SerializeField]
     private Text trumpf;
+    [SerializeField]
+    private Text Score1;
+    [SerializeField]
+    private Text Score2;
+    [SerializeField]
+    private Text Score3;
+    [SerializeField]
+    private Text Score4;
 
     string trumpfUnit;
     RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
     private const byte CURRENT_PLAYER_EVENT = 2;
     private const byte TRUMPF_EVENT = 3;
     private const byte SET_AKTIVE_EVENT = 5;
+    private const byte SEND_SCORE_EVENT= 13;
 
     #endregion
 
@@ -363,50 +372,48 @@ public class GameManagerMultiplayer : MonoBehaviourPun
 
     void CalculateWinner()
     {
-        //yard1 = 0;
-        //yard2 = 0;
-        //yard3 = 0;
-        //yard4 = 0;      //don't do that 
-        //foreach (GameObject card in player1)
-        //{
-        //    currentUnit = card.GetComponent<PlayCard>();
-        //    yard1 += currentUnit.unitValue;
-        //}
-        //foreach (GameObject card in player2)
-        //{
-        //    currentUnit = card.GetComponent<PlayCard>();
-        //    yard2 += currentUnit.unitValue;
-        //}
-        //foreach (GameObject card in player3)
-        //{
-        //    currentUnit = card.GetComponent<PlayCard>();
-        //    yard3 += currentUnit.unitValue;
-        //}
-        //foreach (GameObject card in player4)
-        //{
-        //    currentUnit = card.GetComponent<PlayCard>();
-        //    yard4 += currentUnit.unitValue;
-        //}
-        //if (yard1 > yard2 && yard1 > yard3 && yard1 > yard4)
-        //{
-        //    state = TurnStateSingleplayer.WON;
-        //}
-        //if (yard2 > yard1 && yard2 > yard3 && yard2 > yard4)
-        //{
-        //    state = TurnStateSingleplayer.WON;
-        //}
-        //if (yard3 > yard1 && yard3 > yard2 && yard3 > yard4)
-        //{
-        //    state = TurnStateSingleplayer.WON;
-        //}
-        //if (yard4 > yard1 && yard4 > yard2 && yard4 > yard3)
-        //{
-        //    state = TurnStateSingleplayer.WON;
-        //}
-        //Score1.text = yard1.ToString();
-        //Score2.text = yard2.ToString();
-        //Score3.text = yard3.ToString();
-        //Score4.text = yard4.ToString();
+        int yard1 = 0;
+        int yard2 = 0;
+        int yard3 = 0;
+        int yard4 = 0;      //don't do that 
+        foreach (GameObject card in player1)
+        {
+            currentUnit = card.GetComponent<PlayCard>();
+            yard1 += currentUnit.unitValue;
+        }
+        foreach (GameObject card in player2)
+        {
+            currentUnit = card.GetComponent<PlayCard>();
+            yard2 += currentUnit.unitValue;
+        }
+        foreach (GameObject card in player3)
+        {
+            currentUnit = card.GetComponent<PlayCard>();
+            yard3 += currentUnit.unitValue;
+        }
+        foreach (GameObject card in player4)
+        {
+            currentUnit = card.GetComponent<PlayCard>();
+            yard4 += currentUnit.unitValue;
+        }
+        if (yard1 > yard2 && yard1 > yard3 && yard1 > yard4)
+        {
+            state = TurnState.WON;
+        }
+        if (yard2 > yard1 && yard2 > yard3 && yard2 > yard4)
+        {
+            state = TurnState.WON;
+        }
+        if (yard3 > yard1 && yard3 > yard2 && yard3 > yard4)
+        {
+            state = TurnState.WON;
+        }
+        if (yard4 > yard1 && yard4 > yard2 && yard4 > yard3)
+        {
+            state = TurnState.WON;
+        }
+        object[] datas = new object[] { yard1.ToString(), yard2.ToString(), yard3.ToString(), yard4.ToString() };
+        PhotonNetwork.RaiseEvent(SEND_SCORE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
     }
 
     IEnumerator ClearDropZone()
@@ -441,6 +448,18 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             object[] datas = (object[])obj.CustomData;
             string t = (string)datas[0];
             trumpf.text = t;
+        }
+        if (obj.Code == SEND_SCORE_EVENT)
+        {
+            object[] datas = (object[])obj.CustomData;
+            string score1 = (string)datas[0];
+            string score2 = (string)datas[1];
+            string score3 = (string)datas[2];
+            string score4 = (string)datas[3];
+            Score1.text = score1;
+            Score2.text = score2;
+            Score3.text = score3;
+            Score4.text = score4;
         }
     }
     #endregion

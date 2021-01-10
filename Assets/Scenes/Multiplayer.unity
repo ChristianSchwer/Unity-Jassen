@@ -338,7 +338,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79e9f3cd3626a5d4caed5755f20d5ce7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  allCards: {fileID: 0}
   E6: {fileID: 7369395445363766546, guid: ae4e85acfe499c94e9183db24a51c997, type: 3}
   E7: {fileID: 7756895349496631221, guid: df13f0bb6117175428d5d26c72dce06f, type: 3}
   E8: {fileID: 3339231386683486420, guid: 849ce7c4cb7ef5846974f8d34cef6d08, type: 3}
@@ -375,7 +374,6 @@ MonoBehaviour:
   S12: {fileID: 2323600362811009512, guid: 430b56e0e50310b46907b04002fead00, type: 3}
   S13: {fileID: 7646657009534416284, guid: 75631ac572f80754c8f3b6d79b681bdb, type: 3}
   S14: {fileID: 3849664504170617209, guid: 0303eb4be06d14c4baf6f1cdade72c22, type: 3}
-  st: 
   playerHand: {fileID: 1753432120}
   cards: []
 --- !u!1 &335461007
@@ -954,11 +952,14 @@ MonoBehaviour:
   ShuffleCards: {fileID: 316871913}
   NextCard: {fileID: 1330926085}
   playerHand: {fileID: 1753432120}
-  playerHandOverlay: {fileID: 1076996678}
   dropZone: {fileID: 193019645}
   yard: {fileID: 1278865877}
   currentPlayer: {fileID: 833183375}
   trumpf: {fileID: 1478904260}
+  Score1: {fileID: 1682080922}
+  Score2: {fileID: 2082170658}
+  Score3: {fileID: 1694240286}
+  Score4: {fileID: 1380996600}
 --- !u!4 &878446714
 Transform:
   m_ObjectHideFlags: 0
