@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SceneMenu : MonoBehaviour
+public class SceneMenu : MonoBehaviourPunCallbacks
 {
     #region Private Fields
 
@@ -45,11 +45,19 @@ public class SceneMenu : MonoBehaviour
 
     public void OnClick_LobbyScene()
     {
+        PhotonNetwork.LeaveRoom();
+    }
+
+    public override void OnLeftRoom()
+    {
+        Debug.Log("SceneMenu: OnLeftRoom() was called by PUN.");
         PhotonNetwork.LoadLevel(2);
+        base.OnLeftRoom();
     }
 
     public void OnClick_HomeScene()
     {
+        PhotonNetwork.Disconnect();
         PhotonNetwork.LoadLevel(0);
     }
 

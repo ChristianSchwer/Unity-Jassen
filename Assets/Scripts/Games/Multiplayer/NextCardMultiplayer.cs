@@ -337,6 +337,7 @@ public class NextCardMultiplayer : MonoBehaviour
                 {
                     card.gameObject.GetComponent<PlayCard>().SetPlayer(unitPlayer);
                     GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
+                    playerCard.layer = 13;
                     playerCard.transform.SetParent(DropZone.transform, false);
                 }
             }

@@ -1,6 +1,7 @@
 ﻿using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -57,6 +58,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     private const byte TRUMPF_EVENT = 3;
     private const byte SET_AKTIVE_EVENT = 5;
     private const byte SEND_SCORE_EVENT= 13;
+    private const byte SEND_PLAYERSEQUENCE_EVENT= 14;
 
     #endregion
 
@@ -147,6 +149,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
 
     void SetupGame()
     {
+        //GetPlayers();         Get Player Sequence / Change Player Sequence on a new game
         ShuffleCards.CardShuffle();
         cards = ShuffleCards.ChangeCardToGameObject();
         ResetCards();
@@ -425,6 +428,11 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         }
     }
 
+    void EndGame()
+    {
+
+    }
+
     private void OnEnable()
     {
         PhotonNetwork.NetworkingClient.EventReceived += NetworkingClient_EventReceived;
@@ -456,10 +464,26 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             string score2 = (string)datas[1];
             string score3 = (string)datas[2];
             string score4 = (string)datas[3];
-            Score1.text = score1;
-            Score2.text = score2;
-            Score3.text = score3;
-            Score4.text = score4;
+            foreach (Player p in PhotonNetwork.PlayerList)
+            {
+                if (p.ActorNumber == 1)
+                {
+                    Score1.text = p.NickName + ": " + score1;
+                }
+                if (p.ActorNumber == 2)
+                {
+                    Score2.text = p.NickName + ": " + score2;
+                }
+                if (p.ActorNumber == 3)
+                {
+                    Score3.text = p.NickName + ": " + score3;
+                }
+                if (p.ActorNumber == 4)
+                {
+                    Score4.text = p.NickName + ": " + score4;
+                }
+            }
+            EndGame();
         }
     }
     #endregion
