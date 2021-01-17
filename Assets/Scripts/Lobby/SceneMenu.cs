@@ -10,6 +10,8 @@ public class SceneMenu : MonoBehaviourPunCallbacks
     private RoomsCanvases _roomsCanvases;
     [SerializeField]
     private GameObject backOptions;
+    [SerializeField]
+    private NetworkManager NetworkManager;
 
     #endregion
 
@@ -22,7 +24,7 @@ public class SceneMenu : MonoBehaviourPunCallbacks
 
     public void OnClick_LeaveRoom()
     {
-        PhotonNetwork.LeaveRoom(true);
+        PhotonNetwork.LeaveRoom();
         _roomsCanvases.CurrentRoomCanvas.Hide();
     }
 
@@ -48,13 +50,6 @@ public class SceneMenu : MonoBehaviourPunCallbacks
         PhotonNetwork.LeaveRoom();
     }
 
-    public override void OnLeftRoom()
-    {
-        Debug.Log("SceneMenu: OnLeftRoom() was called by PUN.");
-        PhotonNetwork.LoadLevel(2);
-        base.OnLeftRoom();
-    }
-
     public void OnClick_HomeScene()
     {
         PhotonNetwork.Disconnect();
@@ -64,6 +59,25 @@ public class SceneMenu : MonoBehaviourPunCallbacks
     public void OnClick_QuitGame()
     {
         Application.Quit();
+    }
+
+    #endregion
+
+    #region MonoBehaviourPunCallbacks Callbacks
+
+    public override void OnConnectedToMaster()
+    {
+        Debug.Log("NetworkManager: OnConnectedToMaster() was called by PUN.");
+        if (!PhotonNetwork.InLobby)
+        {
+            PhotonNetwork.JoinLobby();
+        }
+    }
+
+    public override void OnJoinedLobby()
+    {
+        Debug.Log("NetworkManager: OnJoinedLobby() mit Lobby verbunden.");
+        PhotonNetwork.LoadLevel(2);
     }
 
     #endregion

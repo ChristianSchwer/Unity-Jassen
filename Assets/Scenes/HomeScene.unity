@@ -1340,6 +1340,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   backOptions: {fileID: 418358174}
+  NetworkManager: {fileID: 2011224440}
 --- !u!1 &1836231235
 GameObject:
   m_ObjectHideFlags: 0
