@@ -23,7 +23,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     List<GameObject> player3 = new List<GameObject>();
     List<GameObject> player4 = new List<GameObject>();
     public static int start;
-    public int activePlayer;
+    public Player activePlayer;
+    public Player startPlayer;
 
     #endregion
 
@@ -39,6 +40,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     private GameObject dropZone;
     [SerializeField]
     private GameObject yard;
+    [SerializeField]
+    private GameObject scoreBoard;
     [SerializeField]
     private Text currentPlayer;
     [SerializeField]
@@ -58,7 +61,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     private const byte TRUMPF_EVENT = 3;
     private const byte SET_AKTIVE_EVENT = 5;
     private const byte SEND_SCORE_EVENT= 13;
-    private const byte SEND_PLAYERSEQUENCE_EVENT= 14;
+    private const byte DEACTIVATE_SCOREBOARD_EVENT= 14;
 
     #endregion
 
@@ -71,9 +74,28 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         //Game starts when Player hit "Start Game"-Button in the PlayerListingsMenu
         if (start == 1)
         {
+            //Deactivate the scoreboard when activ
+            object[] datas = new object[] { false };
+            PhotonNetwork.RaiseEvent(DEACTIVATE_SCOREBOARD_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
             state = TurnState.START;
-            SetupGame();
             start = 0;
+            SetupGame();
+        }
+    }
+
+    void Start()
+    {
+        foreach (Player player in PhotonNetwork.PlayerList)
+        {
+            //if (player.IsLocal)
+            //{
+            //    turnProperties["TurnNumber"] = player.ActorNumber;
+            //    PhotonNetwork.LocalPlayer.CustomProperties = turnProperties;
+            //}
+            if (player.IsMasterClient)
+            {
+                startPlayer = player;
+            }
         }
     }
 
@@ -81,37 +103,39 @@ public class GameManagerMultiplayer : MonoBehaviourPun
 
     #region Public Methods
 
-    public void PlayerTurn(int p)
+    public void PlayerTurn(Player p)
     {
-        if (p == 1)
-        {
-            state = TurnState.PLAYERTURN1;
-            activePlayer = 0;
-            CurrentPlayer(p);
-        }
-        if (p == 2)
-        {
-            state = TurnState.PLAYERTURN2;
-            activePlayer = 0;
-            CurrentPlayer(p);
-        }
-        if (p == 3)
-        {
-            state = TurnState.PLAYERTURN3;
-            activePlayer = 0;
-            CurrentPlayer(p);
-        }
-        if (p == 4)
-        {
-            state = TurnState.PLAYERTURN4;
-            activePlayer = 0;
-            CurrentPlayer(p);
-        }
+        CurrentPlayer(p.ActorNumber);
+        activePlayer = null;
+        //if (activePlayer.ActorNumber == p)
+        //{
+        //    state = TurnState.PLAYERTURN1;
+        //    //activePlayer = 0;
+        //    CurrentPlayer(p);
+        //}
+        //if (p == 2)
+        //{
+        //    state = TurnState.PLAYERTURN2;
+        //    activePlayer = 0;
+        //    CurrentPlayer(p);
+        //}
+        //if (p == 3)
+        //{
+        //    state = TurnState.PLAYERTURN3;
+        //    activePlayer = 0;
+        //    CurrentPlayer(p);
+        //}
+        //if (p == 4)
+        //{
+        //    state = TurnState.PLAYERTURN4;
+        //    activePlayer = 0;
+        //    CurrentPlayer(p);
+        //}
         if (GetChildCount() == 4)
         {
             if (PhotonNetwork.IsMasterClient)
             {
-                CalculateRoundWinner(p);
+                CalculateRoundWinner();
             }
             else
             {
@@ -149,13 +173,17 @@ public class GameManagerMultiplayer : MonoBehaviourPun
 
     void SetupGame()
     {
-        //GetPlayers();         Get Player Sequence / Change Player Sequence on a new game
         ShuffleCards.CardShuffle();
-        cards = ShuffleCards.ChangeCardToGameObject();
+        StartCoroutine(WaitForCards());
+    }
+
+    IEnumerator WaitForCards()
+    {
+        yield return new WaitForSeconds(1f);
+        cards = ShuffleCards.GetCards();
         ResetCards();
         GetTrumpf();
-        ShuffleCards.GiveCards();
-        object[] datas = new object[] { true, 1 };
+        object[] datas = new object[] { true, startPlayer };
         PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
     }
 
@@ -207,7 +235,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         return dropZone.transform.childCount;
     }
 
-    void CalculateRoundWinner(int p)
+    void CalculateRoundWinner()
     {
         if (GetChildCount() == 4)
         {
@@ -219,6 +247,10 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             dropzonecards.Add(child2);
             dropzonecards.Add(child3);
             dropzonecards.Add(child4);
+            Debug.Log(child1.GetComponent<PlayCard>().unitPlayer);
+            Debug.Log(child4.GetComponent<PlayCard>().unitPlayer);
+            Debug.Log(child3.GetComponent<PlayCard>().unitPlayer);
+            Debug.Log(child2.GetComponent<PlayCard>().unitPlayer);
             string firstcard = child1.GetComponent<PlayCard>().unitName.Substring(0, 1);
             foreach (GameObject card in dropzonecards)
             {
@@ -350,25 +382,25 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         if (turn == "player1")
         {
             NextCard.FirstPlayer(1);
-            object[] datas = new object[] { true, 1 };
+            object[] datas = new object[] { true, startPlayer };
             PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
         if (turn == "player2")
         {
             NextCard.FirstPlayer(1);
-            object[] datas = new object[] { true, 2 };
+            object[] datas = new object[] { true, startPlayer.GetNext() };
             PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
         if (turn == "player3")
         {
             NextCard.FirstPlayer(1);
-            object[] datas = new object[] { true, 3 };
+            object[] datas = new object[] { true, startPlayer.GetNext().GetNext() };
             PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
         if (turn == "player4")
         {
             NextCard.FirstPlayer(1);
-            object[] datas = new object[] { true, 4 };
+            object[] datas = new object[] { true, startPlayer.GetNext().GetNext().GetNext() };
             PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
     }
@@ -430,7 +462,16 @@ public class GameManagerMultiplayer : MonoBehaviourPun
 
     void EndGame()
     {
-
+        scoreBoard.SetActive(true);
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            Button newGameButton = scoreBoard.GetComponentInChildren<Button>();
+            newGameButton.gameObject.SetActive(false);
+        }
+        cards.Clear();
+        ShuffleCards.cards.Clear();
+        //Set start player to the next player
+        startPlayer = startPlayer.GetNext();
     }
 
     private void OnEnable()
@@ -449,13 +490,13 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         {
             object[] datas = (object[])obj.CustomData;
             string p = (string)datas[0];
-            currentPlayer.text = p;
+            currentPlayer.text = "Current Player: " + p;
         }
         if (obj.Code == TRUMPF_EVENT)
         {
             object[] datas = (object[])obj.CustomData;
             string t = (string)datas[0];
-            trumpf.text = t;
+            trumpf.text = "Trumpf: " + t;
         }
         if (obj.Code == SEND_SCORE_EVENT)
         {
@@ -484,6 +525,12 @@ public class GameManagerMultiplayer : MonoBehaviourPun
                 }
             }
             EndGame();
+        }
+        if (obj.Code == DEACTIVATE_SCOREBOARD_EVENT)
+        {
+            object[] datas = (object[])obj.CustomData;
+            bool active = (bool)datas[0];
+            scoreBoard.SetActive(active);
         }
     }
     #endregion

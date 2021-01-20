@@ -7,26 +7,24 @@ public class SceneMenu : MonoBehaviourPunCallbacks
 {
     #region Private Fields
 
-    private RoomsCanvases _roomsCanvases;
+    //private RoomsCanvases _roomsCanvases;
     [SerializeField]
     private GameObject backOptions;
-    [SerializeField]
-    private NetworkManager NetworkManager;
 
     #endregion
 
     #region Public Methods
 
-    public void FirstInitialize(RoomsCanvases canvases)
-    {
-        _roomsCanvases = canvases;
-    }
+    //public void FirstInitialize(RoomsCanvases canvases)
+    //{
+    //    _roomsCanvases = canvases;
+    //}
 
-    public void OnClick_LeaveRoom()
-    {
-        PhotonNetwork.LeaveRoom();
-        _roomsCanvases.CurrentRoomCanvas.Hide();
-    }
+    //public void OnClick_LeaveRoom()
+    //{
+    //    PhotonNetwork.LeaveRoom();
+    //    _roomsCanvases.CurrentRoomCanvas.Hide();
+    //}
 
     public void OnClick_BackButton()
     {
@@ -59,6 +57,11 @@ public class SceneMenu : MonoBehaviourPunCallbacks
     public void OnClick_QuitGame()
     {
         Application.Quit();
+    }
+
+    public void OnClick_NewGame()
+    {
+        GameManagerMultiplayer.start = 1;
     }
 
     #endregion

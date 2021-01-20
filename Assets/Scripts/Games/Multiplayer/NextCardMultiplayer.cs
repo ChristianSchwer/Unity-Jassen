@@ -15,7 +15,7 @@ public class NextCardMultiplayer : MonoBehaviour
     EventSystem m_EventSystem;
     public GameObject DropZone;
 
-    string player;
+    string playerString;
     string firstLetter;
     string trumpf;
     int move;
@@ -39,6 +39,8 @@ public class NextCardMultiplayer : MonoBehaviour
     private const byte SEND_TRUMPF_EVENT = 11;
     private const byte SEND_FIRSTCARD_EVENT = 12;
 
+    Player currentPlayer;
+
     //TurnState state;          Enum over all scripts, dosn't work
 
     public GameManagerMultiplayer gameManagerMultiplayer;
@@ -60,23 +62,26 @@ public class NextCardMultiplayer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (gameManagerMultiplayer.activePlayer == 1)
+        foreach (Player player in PhotonNetwork.PlayerList)
         {
-            gameManagerMultiplayer.PlayerTurn(1);
+            if (gameManagerMultiplayer.activePlayer == player)
+            {
+                currentPlayer = gameManagerMultiplayer.activePlayer;
+                gameManagerMultiplayer.PlayerTurn(player);
+            }
+            //if (gameManagerMultiplayer.activePlayer == 2)
+            //{
+            //    gameManagerMultiplayer.PlayerTurn(2);
+            //}
+            //if (gameManagerMultiplayer.activePlayer == 3)
+            //{
+            //    gameManagerMultiplayer.PlayerTurn(3);
+            //}
+            //if (gameManagerMultiplayer.activePlayer == 4)
+            //{
+            //    gameManagerMultiplayer.PlayerTurn(4);
+            //}
         }
-        if (gameManagerMultiplayer.activePlayer == 2)
-        {
-            gameManagerMultiplayer.PlayerTurn(2);
-        }
-        if (gameManagerMultiplayer.activePlayer == 3)
-        {
-            gameManagerMultiplayer.PlayerTurn(3);
-        }
-        if (gameManagerMultiplayer.activePlayer == 4)
-        {
-            gameManagerMultiplayer.PlayerTurn(4);
-        }
-
         if (Input.GetMouseButtonDown(0))
         {
             //Set up the new Pointer Event
@@ -117,27 +122,27 @@ public class NextCardMultiplayer : MonoBehaviour
                                     PhotonNetwork.RaiseEvent(SEND_FIRSTCARD_EVENT, firstcarddatas, raiseEventOptions, SendOptions.SendReliable);
                                     object[] movedatas = new object[] { move };
                                     PhotonNetwork.RaiseEvent(CURRENT_MOVE_EVENT, movedatas, raiseEventOptions, SendOptions.SendReliable);
-                                    object[] datas = new object[] { result.gameObject.name, player };
+                                    object[] datas = new object[] { result.gameObject.name, playerString };
                                     PhotonNetwork.RaiseEvent(CURRENT_CARDS_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
-                                    RemoveCard(result, player);
+                                    RemoveCard(result, playerString);
                                 }
                             }
                             else
                             {
                                 bool check = true;
-                                if (player == "player1")
+                                if (playerString == "player1")
                                 {
                                     check = CheckList(player1, firstLetter, trumpf);
                                 }
-                                if (player == "player2")
+                                if (playerString == "player2")
                                 {
                                     check = CheckList(player2, firstLetter, trumpf);
                                 }
-                                if (player == "player3")
+                                if (playerString == "player3")
                                 {
                                     check = CheckList(player3, firstLetter, trumpf);
                                 }
-                                if (player == "player4")
+                                if (playerString == "player4")
                                 {
                                     check = CheckList(player4, firstLetter, trumpf);
                                 }
@@ -145,18 +150,18 @@ public class NextCardMultiplayer : MonoBehaviour
                                 {
                                     if (result.gameObject.name.Contains("E") || result.gameObject.name.Contains("B") || result.gameObject.name.Contains("H") || result.gameObject.name.Contains("S"))
                                     {
-                                        object[] datas = new object[] { result.gameObject.name, player };
+                                        object[] datas = new object[] { result.gameObject.name, playerString };
                                         PhotonNetwork.RaiseEvent(CURRENT_CARDS_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
-                                        RemoveCard(result, player);
+                                        RemoveCard(result, playerString);
                                     }
                                 }
                                 else
                                 {
                                     if (result.gameObject.name.Contains(firstLetter) || result.gameObject.name.Contains(trumpf))
                                     {
-                                        object[] datas = new object[] { result.gameObject.name, player };
+                                        object[] datas = new object[] { result.gameObject.name, playerString };
                                         PhotonNetwork.RaiseEvent(CURRENT_CARDS_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
-                                        RemoveCard(result, player);
+                                        RemoveCard(result, playerString);
                                     }
                                     //else
                                     //{
@@ -171,31 +176,31 @@ public class NextCardMultiplayer : MonoBehaviour
         }
     }
 
-    public void nextCard(int turn)
+    public void nextCard(Player player)
     {
         foreach (Player p in PhotonNetwork.PlayerList)
         {
             if (p.IsLocal)
             {
                 int playerID = int.Parse(p.ActorNumber.ToString().Substring(0,1));
-                if (playerID == turn && turn == 1)
+                if (playerID == player.ActorNumber && player.ActorNumber == 1)
                 {
-                    player = "player1";
+                    playerString = "player1";
                     playerHandOverlay.SetActive(false);
                 }
-                if (playerID == turn && turn == 2)
+                if (playerID == player.ActorNumber && player.ActorNumber == 2)
                 {
-                    player = "player2";
+                    playerString = "player2";
                     playerHandOverlay.SetActive(false);
                 }
-                if (playerID == turn && turn == 3)
+                if (playerID == player.ActorNumber && player.ActorNumber == 3)
                 {
-                    player = "player3";
+                    playerString = "player3";
                     playerHandOverlay.SetActive(false);
                 }
-                if (playerID == turn && turn == 4)
+                if (playerID == player.ActorNumber && player.ActorNumber == 4)
                 {
-                    player = "player4";
+                    playerString = "player4";
                     playerHandOverlay.SetActive(false);
                 }
             }
@@ -223,12 +228,9 @@ public class NextCardMultiplayer : MonoBehaviour
         if (player == "player1")
         {
             player = "None";
-            foreach (string s in player1)
-            {
-            }
             player1.Remove(i.gameObject.name.TrimEnd(removeWord));
             Destroy(i.gameObject);
-            object[] datas = new object[] { true, 2 };
+            object[] datas = new object[] { true, currentPlayer.GetNext() };
             PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
         if (player == "player2")
@@ -236,7 +238,7 @@ public class NextCardMultiplayer : MonoBehaviour
             player = "None";
             player2.Remove(i.gameObject.name.TrimEnd(removeWord));
             Destroy(i.gameObject);
-            object[] datas = new object[] { true, 3 };
+            object[] datas = new object[] { true, currentPlayer.GetNext() };
             PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
         if (player == "player3")
@@ -244,7 +246,7 @@ public class NextCardMultiplayer : MonoBehaviour
             player = "None";
             player3.Remove(i.gameObject.name.TrimEnd(removeWord));
             Destroy(i.gameObject);
-            object[] datas = new object[] { true, 4 };
+            object[] datas = new object[] { true, currentPlayer.GetNext() };
             PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
         if (player == "player4")
@@ -252,7 +254,7 @@ public class NextCardMultiplayer : MonoBehaviour
             player = "None";
             player4.Remove(i.gameObject.name.TrimEnd(removeWord));
             Destroy(i.gameObject);
-            object[] datas = new object[] { true, 1 };
+            object[] datas = new object[] { true, currentPlayer.GetNext() };
             PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
     }
@@ -346,7 +348,7 @@ public class NextCardMultiplayer : MonoBehaviour
         {
             object[] datas = (object[])obj.CustomData;
             bool active = (bool)datas[0];
-            int nextPlayer = (int)datas[1];
+            Player nextPlayer = (Player)datas[1];
             playerHandOverlay.SetActive(active);
             gameManagerMultiplayer.activePlayer = nextPlayer;
         }

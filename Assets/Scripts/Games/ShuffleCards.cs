@@ -57,7 +57,6 @@ public class ShuffleCards : MonoBehaviourPun
     private GameObject playerHand;
     List<string> cardsName = new List<string>();
     public List<GameObject> cards = new List<GameObject>();
-    List<string> allPlayerCards = new List<string>();
 
     RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
     private const byte CARDS_SHUFFLE_EVENT = 1;
@@ -89,6 +88,7 @@ public class ShuffleCards : MonoBehaviourPun
     {
         if (obj.Code == CARDS_SHUFFLE_EVENT)
         {
+            cardsName.Clear();
             object[] datas = (object[])obj.CustomData;
             Array array = (Array)datas[0];
             foreach (string s in array)
@@ -106,8 +106,8 @@ public class ShuffleCards : MonoBehaviourPun
 
     public void CardShuffle()
     {
+        cardsName.Clear();
         AddCardsName();
-
         System.Random rnd = new System.Random();
         for (int i = cardsName.Count - 1; i > 0; i--)
         {
@@ -116,18 +116,12 @@ public class ShuffleCards : MonoBehaviourPun
             cardsName[i] = cardsName[j];
             cardsName[j] = temp;
         }
-        for (int i = 0; i <= 35; i++)
-        {
-            allPlayerCards.Add(cardsName[i]);
-        }
-        object[] datas = new object[] { allPlayerCards.ToArray() };
-        RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.Others };
+        object[] datas = new object[] { cardsName.ToArray() };
         PhotonNetwork.RaiseEvent(CARDS_SHUFFLE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
     }
 
-    public List<GameObject> ChangeCardToGameObject()
+    public List<GameObject> GetCards()
     {
-        AddCards();
         return cards;
     }
 
