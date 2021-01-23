@@ -38,6 +38,7 @@ public class NextCardMultiplayer : MonoBehaviour
     private const byte SEND_PLAYER4HAND_EVENT = 10;
     private const byte SEND_TRUMPF_EVENT = 11;
     private const byte SEND_FIRSTCARD_EVENT = 12;
+    private const byte SEND_PLAYERNUMBER_EVENT = 15;
 
     Player currentPlayer;
 
@@ -67,20 +68,8 @@ public class NextCardMultiplayer : MonoBehaviour
             if (gameManagerMultiplayer.activePlayer == player)
             {
                 currentPlayer = gameManagerMultiplayer.activePlayer;
-                gameManagerMultiplayer.PlayerTurn(player);
+                gameManagerMultiplayer.PlayerTurn(currentPlayer);
             }
-            //if (gameManagerMultiplayer.activePlayer == 2)
-            //{
-            //    gameManagerMultiplayer.PlayerTurn(2);
-            //}
-            //if (gameManagerMultiplayer.activePlayer == 3)
-            //{
-            //    gameManagerMultiplayer.PlayerTurn(3);
-            //}
-            //if (gameManagerMultiplayer.activePlayer == 4)
-            //{
-            //    gameManagerMultiplayer.PlayerTurn(4);
-            //}
         }
         if (Input.GetMouseButtonDown(0))
         {
@@ -163,10 +152,6 @@ public class NextCardMultiplayer : MonoBehaviour
                                         PhotonNetwork.RaiseEvent(CURRENT_CARDS_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
                                         RemoveCard(result, playerString);
                                     }
-                                    //else
-                                    //{
-                                    //    Debug.Log("out");
-                                    //}
                                 }
                             }
                         }
@@ -176,31 +161,37 @@ public class NextCardMultiplayer : MonoBehaviour
         }
     }
 
-    public void nextCard(Player player)
+    public void nextCard(Player player, int currentNumber)
     {
         foreach (Player p in PhotonNetwork.PlayerList)
         {
             if (p.IsLocal)
             {
-                int playerID = int.Parse(p.ActorNumber.ToString().Substring(0,1));
-                if (playerID == player.ActorNumber && player.ActorNumber == 1)
+                if (p.ActorNumber == player.ActorNumber)
                 {
-                    playerString = "player1";
-                    playerHandOverlay.SetActive(false);
-                }
-                if (playerID == player.ActorNumber && player.ActorNumber == 2)
-                {
-                    playerString = "player2";
-                    playerHandOverlay.SetActive(false);
-                }
-                if (playerID == player.ActorNumber && player.ActorNumber == 3)
-                {
-                    playerString = "player3";
-                    playerHandOverlay.SetActive(false);
-                }
-                if (playerID == player.ActorNumber && player.ActorNumber == 4)
-                {
-                    playerString = "player4";
+                    if(currentNumber == 1)
+                    {
+                        playerString = "player" + currentNumber.ToString();
+                    }
+                    if(currentNumber == 2)
+                    {
+                        playerString = "player" + currentNumber.ToString();
+                    }
+                    if(currentNumber == 3)
+                    {
+                        playerString = "player" + currentNumber.ToString();
+                    }
+                    if(currentNumber == 4)
+                    {
+                        playerString = "player" + currentNumber.ToString();
+                    }
+                    currentNumber++;
+                    if (currentNumber == 5)
+                    {
+                        currentNumber = 1;
+                    }
+                    object[] datas = new object[] { currentNumber };
+                    PhotonNetwork.RaiseEvent(SEND_PLAYERNUMBER_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
                     playerHandOverlay.SetActive(false);
                 }
             }
@@ -227,36 +218,25 @@ public class NextCardMultiplayer : MonoBehaviour
         char[] removeWord = { '(', 'C', 'l', 'o', 'n', 'e', ')' };
         if (player == "player1")
         {
-            player = "None";
             player1.Remove(i.gameObject.name.TrimEnd(removeWord));
-            Destroy(i.gameObject);
-            object[] datas = new object[] { true, currentPlayer.GetNext() };
-            PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
         if (player == "player2")
         {
-            player = "None";
             player2.Remove(i.gameObject.name.TrimEnd(removeWord));
-            Destroy(i.gameObject);
-            object[] datas = new object[] { true, currentPlayer.GetNext() };
-            PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
         if (player == "player3")
         {
-            player = "None";
             player3.Remove(i.gameObject.name.TrimEnd(removeWord));
-            Destroy(i.gameObject);
-            object[] datas = new object[] { true, currentPlayer.GetNext() };
-            PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
         if (player == "player4")
         {
-            player = "None";
             player4.Remove(i.gameObject.name.TrimEnd(removeWord));
-            Destroy(i.gameObject);
-            object[] datas = new object[] { true, currentPlayer.GetNext() };
-            PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
+        playerString = "None";
+        Destroy(i.gameObject);
+        object[] datas = new object[] { true, currentPlayer.GetNext() };
+        PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
+
     }
 
     bool CheckList(List<string> cards, string Letter, string currentTrumpf)
@@ -291,6 +271,15 @@ public class NextCardMultiplayer : MonoBehaviour
         {
             return true;
         }
+    }
+
+    public void ClearList()
+    {
+        player1.Clear();
+        player2.Clear();
+        player3.Clear();
+        player4.Clear();
+        cards.Clear();
     }
 
     private void OnEnable()
@@ -348,9 +337,9 @@ public class NextCardMultiplayer : MonoBehaviour
         {
             object[] datas = (object[])obj.CustomData;
             bool active = (bool)datas[0];
-            Player nextPlayer = (Player)datas[1];
+            Player currentPlayer = (Player)datas[1];
             playerHandOverlay.SetActive(active);
-            gameManagerMultiplayer.activePlayer = nextPlayer;
+            gameManagerMultiplayer.activePlayer = currentPlayer;
         }
         if (obj.Code == CURRENT_MOVE_EVENT)
         {
@@ -405,6 +394,12 @@ public class NextCardMultiplayer : MonoBehaviour
             object[] datas = (object[])obj.CustomData;
             string firstCard = (string)datas[0];
             firstLetter = firstCard;
+        }
+        if (obj.Code == SEND_PLAYERNUMBER_EVENT)
+        {
+            object[] datas = (object[])obj.CustomData;
+            int playerNumber = (int)datas[0];
+            gameManagerMultiplayer.playerNumber = playerNumber;
         }
     }
 }

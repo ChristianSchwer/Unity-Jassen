@@ -1,19 +1,15 @@
 ﻿using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public enum TurnState { START, PLAYERTURN1, PLAYERTURN2, PLAYERTURN3, PLAYERTURN4, WON, LOST }
-
 public class GameManagerMultiplayer : MonoBehaviourPun
 {
     #region Public Fields
 
-    public TurnState state;
     public List<GameObject> cards = new List<GameObject>();
     List<GameObject> dropzonecards = new List<GameObject>();
     List<GameObject> trumpfcards = new List<GameObject>();
@@ -25,6 +21,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     public static int start;
     public Player activePlayer;
     public Player startPlayer;
+    public int playerNumber;
 
     #endregion
 
@@ -62,6 +59,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     private const byte SET_AKTIVE_EVENT = 5;
     private const byte SEND_SCORE_EVENT= 13;
     private const byte DEACTIVATE_SCOREBOARD_EVENT= 14;
+    private const byte SEND_PLAYERNUMBER_EVENT = 15;
 
     #endregion
 
@@ -77,7 +75,6 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             //Deactivate the scoreboard when activ
             object[] datas = new object[] { false };
             PhotonNetwork.RaiseEvent(DEACTIVATE_SCOREBOARD_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
-            state = TurnState.START;
             start = 0;
             SetupGame();
         }
@@ -87,14 +84,12 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     {
         foreach (Player player in PhotonNetwork.PlayerList)
         {
-            //if (player.IsLocal)
-            //{
-            //    turnProperties["TurnNumber"] = player.ActorNumber;
-            //    PhotonNetwork.LocalPlayer.CustomProperties = turnProperties;
-            //}
             if (player.IsMasterClient)
             {
                 startPlayer = player;
+                playerNumber = 1;
+                object[] datas = new object[] { playerNumber };
+                PhotonNetwork.RaiseEvent(SEND_PLAYERNUMBER_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
             }
         }
     }
@@ -107,30 +102,6 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     {
         CurrentPlayer(p.ActorNumber);
         activePlayer = null;
-        //if (activePlayer.ActorNumber == p)
-        //{
-        //    state = TurnState.PLAYERTURN1;
-        //    //activePlayer = 0;
-        //    CurrentPlayer(p);
-        //}
-        //if (p == 2)
-        //{
-        //    state = TurnState.PLAYERTURN2;
-        //    activePlayer = 0;
-        //    CurrentPlayer(p);
-        //}
-        //if (p == 3)
-        //{
-        //    state = TurnState.PLAYERTURN3;
-        //    activePlayer = 0;
-        //    CurrentPlayer(p);
-        //}
-        //if (p == 4)
-        //{
-        //    state = TurnState.PLAYERTURN4;
-        //    activePlayer = 0;
-        //    CurrentPlayer(p);
-        //}
         if (GetChildCount() == 4)
         {
             if (PhotonNetwork.IsMasterClient)
@@ -144,7 +115,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         }
         else
         {
-            NextCard.nextCard(p);
+            NextCard.nextCard(p, playerNumber);
         }
         if (playerHand.transform.childCount == 0 && GetChildCount() == 0)
         {
@@ -179,7 +150,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
 
     IEnumerator WaitForCards()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
         cards = ShuffleCards.GetCards();
         ResetCards();
         GetTrumpf();
@@ -191,6 +162,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     {
         foreach (GameObject card in cards)
         {
+            currentUnit = card.GetComponent<PlayCard>();
+            currentUnit.ResetCard();
             if (card.gameObject.name.Contains("9"))
             {
                 currentUnit = card.GetComponent<PlayCard>();
@@ -247,10 +220,6 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             dropzonecards.Add(child2);
             dropzonecards.Add(child3);
             dropzonecards.Add(child4);
-            Debug.Log(child1.GetComponent<PlayCard>().unitPlayer);
-            Debug.Log(child4.GetComponent<PlayCard>().unitPlayer);
-            Debug.Log(child3.GetComponent<PlayCard>().unitPlayer);
-            Debug.Log(child2.GetComponent<PlayCard>().unitPlayer);
             string firstcard = child1.GetComponent<PlayCard>().unitName.Substring(0, 1);
             foreach (GameObject card in dropzonecards)
             {
@@ -363,7 +332,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         StartCoroutine(Wait(winner));
     }
 
-    IEnumerator Wait(string turn)
+    IEnumerator Wait(string winner)
     {
         yield return new WaitForSeconds(1.5f);
         //clear all cards frome the dropzone
@@ -379,30 +348,36 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             yard.transform.GetChild(i).gameObject.SetActive(false);
         }
         yield return new WaitForSeconds(0.25f);
-        if (turn == "player1")
+        if (winner == "player1")
         {
             NextCard.FirstPlayer(1);
+            playerNumber = 1;
             object[] datas = new object[] { true, startPlayer };
             PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
-        if (turn == "player2")
+        if (winner == "player2")
         {
             NextCard.FirstPlayer(1);
+            playerNumber = 2;
             object[] datas = new object[] { true, startPlayer.GetNext() };
             PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
-        if (turn == "player3")
+        if (winner == "player3")
         {
             NextCard.FirstPlayer(1);
+            playerNumber = 3;
             object[] datas = new object[] { true, startPlayer.GetNext().GetNext() };
             PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
-        if (turn == "player4")
+        if (winner == "player4")
         {
             NextCard.FirstPlayer(1);
+            playerNumber = 4;
             object[] datas = new object[] { true, startPlayer.GetNext().GetNext().GetNext() };
             PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         }
+        object[] data = new object[] { playerNumber };
+        PhotonNetwork.RaiseEvent(SEND_PLAYERNUMBER_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
     }
 
     void CalculateWinner()
@@ -410,7 +385,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         int yard1 = 0;
         int yard2 = 0;
         int yard3 = 0;
-        int yard4 = 0;      //don't do that 
+        int yard4 = 0;
         foreach (GameObject card in player1)
         {
             currentUnit = card.GetComponent<PlayCard>();
@@ -431,22 +406,6 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             currentUnit = card.GetComponent<PlayCard>();
             yard4 += currentUnit.unitValue;
         }
-        if (yard1 > yard2 && yard1 > yard3 && yard1 > yard4)
-        {
-            state = TurnState.WON;
-        }
-        if (yard2 > yard1 && yard2 > yard3 && yard2 > yard4)
-        {
-            state = TurnState.WON;
-        }
-        if (yard3 > yard1 && yard3 > yard2 && yard3 > yard4)
-        {
-            state = TurnState.WON;
-        }
-        if (yard4 > yard1 && yard4 > yard2 && yard4 > yard3)
-        {
-            state = TurnState.WON;
-        }
         object[] datas = new object[] { yard1.ToString(), yard2.ToString(), yard3.ToString(), yard4.ToString() };
         PhotonNetwork.RaiseEvent(SEND_SCORE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
     }
@@ -465,11 +424,20 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         scoreBoard.SetActive(true);
         if (!PhotonNetwork.IsMasterClient)
         {
-            Button newGameButton = scoreBoard.GetComponentInChildren<Button>();
-            newGameButton.gameObject.SetActive(false);
+            if (scoreBoard.GetComponentInChildren<Button>() == true)
+            {
+                Button newGameButton = scoreBoard.GetComponentInChildren<Button>();
+                newGameButton.gameObject.SetActive(false);
+            }
         }
+        //Clear Lists
+        player1.Clear();
+        player2.Clear();
+        player3.Clear();
+        player4.Clear();
         cards.Clear();
-        ShuffleCards.cards.Clear();
+        ShuffleCards.ClearList();
+        NextCard.ClearList();
         //Set start player to the next player
         startPlayer = startPlayer.GetNext();
     }
@@ -505,25 +473,10 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             string score2 = (string)datas[1];
             string score3 = (string)datas[2];
             string score4 = (string)datas[3];
-            foreach (Player p in PhotonNetwork.PlayerList)
-            {
-                if (p.ActorNumber == 1)
-                {
-                    Score1.text = p.NickName + ": " + score1;
-                }
-                if (p.ActorNumber == 2)
-                {
-                    Score2.text = p.NickName + ": " + score2;
-                }
-                if (p.ActorNumber == 3)
-                {
-                    Score3.text = p.NickName + ": " + score3;
-                }
-                if (p.ActorNumber == 4)
-                {
-                    Score4.text = p.NickName + ": " + score4;
-                }
-            }
+            Score1.text = startPlayer.NickName + ": " + score1;
+            Score2.text = startPlayer.GetNext().NickName + ": " + score2;
+            Score3.text = startPlayer.GetNext().GetNext().NickName + ": " + score3;
+            Score4.text = startPlayer.GetNext().GetNext().GetNext().NickName + ": " + score4;
             EndGame();
         }
         if (obj.Code == DEACTIVATE_SCOREBOARD_EVENT)

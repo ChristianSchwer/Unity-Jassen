@@ -55,6 +55,8 @@ public class ShuffleCards : MonoBehaviourPun
 
     [SerializeField]
     private GameObject playerHand;
+    [SerializeField]
+    private GameManagerMultiplayer gameManagerMultiplayer;
     List<string> cardsName = new List<string>();
     public List<GameObject> cards = new List<GameObject>();
 
@@ -334,7 +336,7 @@ public class ShuffleCards : MonoBehaviourPun
 
     private void GiveCardsToPlayer(Player p)
     {
-        if (p.ActorNumber == 1)
+        if (gameManagerMultiplayer.startPlayer.ActorNumber == p.ActorNumber)
         {
             for (int i = 0; i <= 8; i++)
             {
@@ -345,7 +347,7 @@ public class ShuffleCards : MonoBehaviourPun
             object[] data = new object[] { player1.ToArray() };
             PhotonNetwork.RaiseEvent(SEND_PLAYER1HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
         }
-        if (p.ActorNumber == 2)
+        if (gameManagerMultiplayer.startPlayer.GetNext().ActorNumber == p.ActorNumber)
         {
             for (int i = 9; i <= 17; i++)
             {
@@ -356,7 +358,7 @@ public class ShuffleCards : MonoBehaviourPun
             object[] data = new object[] { player2.ToArray() };
             PhotonNetwork.RaiseEvent(SEND_PLAYER2HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
         }
-        if (p.ActorNumber == 3)
+        if (gameManagerMultiplayer.startPlayer.GetNext().GetNext().ActorNumber == p.ActorNumber)
         {
             for (int i = 18; i <= 26; i++)
             {
@@ -367,7 +369,7 @@ public class ShuffleCards : MonoBehaviourPun
             object[] data = new object[] { player3.ToArray() };
             PhotonNetwork.RaiseEvent(SEND_PLAYER3HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
         }
-        if (p.ActorNumber == 4)
+        if (gameManagerMultiplayer.startPlayer.GetNext().GetNext().GetNext().ActorNumber == p.ActorNumber)
         {
             for (int i = 27; i <= 35; i++)
             {
@@ -378,6 +380,16 @@ public class ShuffleCards : MonoBehaviourPun
             object[] data = new object[] { player4.ToArray() };
             PhotonNetwork.RaiseEvent(SEND_PLAYER4HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
         }
+    }
+
+    public void ClearList()
+    {
+        player1.Clear();
+        player2.Clear();
+        player3.Clear();
+        player4.Clear();
+        cards.Clear();
+        cardsName.Clear();
     }
 
     #endregion

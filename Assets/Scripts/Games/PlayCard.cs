@@ -9,6 +9,11 @@ public class PlayCard : MonoBehaviour
     public int unitStrength;
     public string unitPlayer;
 
+    public void ResetCard()
+    {
+        unitPlayer = null;
+    }
+
     public void ResetSnell(string currentName)
     {
         unitName = currentName + 9;
