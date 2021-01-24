@@ -40,9 +40,15 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     [SerializeField]
     private GameObject scoreBoard;
     [SerializeField]
-    private Text currentPlayer;
+    private GameObject TrumpfE;
     [SerializeField]
-    private Text trumpf;
+    private GameObject TrumpfS;
+    [SerializeField]
+    private GameObject TrumpfH;
+    [SerializeField]
+    private GameObject TrumpfB;
+    [SerializeField]
+    private Text currentPlayer;
     [SerializeField]
     private Text Score1;
     [SerializeField]
@@ -51,8 +57,19 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     private Text Score3;
     [SerializeField]
     private Text Score4;
+    [SerializeField]
+    private Text Player1;
+    [SerializeField]
+    private Text Player2;
+    [SerializeField]
+    private Text Player3;
+    [SerializeField]
+    private Text Player4;
+    [SerializeField]
+    private Text Round;
 
     string trumpfUnit;
+    private int round;
     RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
     private const byte CURRENT_PLAYER_EVENT = 2;
     private const byte TRUMPF_EVENT = 3;
@@ -60,6 +77,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     private const byte SEND_SCORE_EVENT= 13;
     private const byte DEACTIVATE_SCOREBOARD_EVENT= 14;
     private const byte SEND_PLAYERNUMBER_EVENT = 15;
+    private const byte SEND_ROUND_EVENT = 16;
 
     #endregion
 
@@ -84,6 +102,13 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     {
         foreach (Player player in PhotonNetwork.PlayerList)
         {
+            if (player.IsLocal)
+            {
+                Player1.text = player.NickName;
+                Player2.text = player.GetNext().NickName;
+                Player3.text = player.GetNext().GetNext().NickName;
+                Player4.text = player.GetNext().GetNext().GetNext().NickName;
+            }
             if (player.IsMasterClient)
             {
                 startPlayer = player;
@@ -104,6 +129,9 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         activePlayer = null;
         if (GetChildCount() == 4)
         {
+            round++;
+            object[] datas = new object[] { round };
+            PhotonNetwork.RaiseEvent(SEND_ROUND_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
             if (PhotonNetwork.IsMasterClient)
             {
                 CalculateRoundWinner();
@@ -146,6 +174,13 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     {
         ShuffleCards.CardShuffle();
         StartCoroutine(WaitForCards());
+        round = 1;
+        object[] datas = new object[] { round };
+        PhotonNetwork.RaiseEvent(SEND_ROUND_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
+        TrumpfE.SetActive(false);
+        TrumpfS.SetActive(false);
+        TrumpfH.SetActive(false);
+        TrumpfB.SetActive(false);
     }
 
     IEnumerator WaitForCards()
@@ -183,7 +218,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     {
         currentUnit = cards[35].GetComponent<PlayCard>();
         trumpfUnit = currentUnit.unitName.Substring(0, 1);
-
+        Debug.Log(trumpfUnit);
         object[] datas = new object[] { trumpfUnit };
         PhotonNetwork.RaiseEvent(TRUMPF_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
 
@@ -464,7 +499,23 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         {
             object[] datas = (object[])obj.CustomData;
             string t = (string)datas[0];
-            trumpf.text = "Trumpf: " + t;
+            Debug.Log(t);
+            if (t == "E")
+            {
+                TrumpfE.SetActive(true);
+            }
+            if (t == "S")
+            {
+                TrumpfS.SetActive(true);
+            }
+            if (t == "H")
+            {
+                TrumpfH.SetActive(true);
+            }
+            if (t == "B")
+            {
+                TrumpfB.SetActive(true);
+            }
         }
         if (obj.Code == SEND_SCORE_EVENT)
         {
@@ -484,6 +535,13 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             object[] datas = (object[])obj.CustomData;
             bool active = (bool)datas[0];
             scoreBoard.SetActive(active);
+        }
+        if (obj.Code == SEND_ROUND_EVENT)
+        {
+            object[] datas = (object[])obj.CustomData;
+            int r = (int)datas[0];
+            round = r;
+            Round.text = round.ToString();
         }
     }
     #endregion
