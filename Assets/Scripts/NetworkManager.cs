@@ -12,7 +12,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     #region Private Fields
 
     [SerializeField]
-    private string gameVersion = "1";
+    private string gameVersion = "2";
     [SerializeField]
     private GameObject controlPanel;
     [SerializeField]

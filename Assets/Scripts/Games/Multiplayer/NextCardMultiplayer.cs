@@ -13,7 +13,10 @@ public class NextCardMultiplayer : MonoBehaviour
     GraphicRaycaster m_Raycaster;
     PointerEventData m_PointerEventData;
     EventSystem m_EventSystem;
-    public GameObject DropZone;
+    public GameObject CurrentCard;
+    public GameObject SecondCard;
+    public GameObject ThirdCard;
+    public GameObject FourthCard;
 
     string playerString;
     string firstLetter;
@@ -329,7 +332,85 @@ public class NextCardMultiplayer : MonoBehaviour
                     card.gameObject.GetComponent<PlayCard>().SetPlayer(unitPlayer);
                     GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
                     playerCard.layer = 13;
-                    playerCard.transform.SetParent(DropZone.transform, false);
+                    foreach (Player player in PhotonNetwork.PlayerList)
+                    {
+                        if (player.IsLocal && player == gameManagerMultiplayer.startPlayer)
+                        {
+                            if (unitPlayer == "player1")
+                            {
+                                playerCard.transform.SetParent(CurrentCard.transform, false);
+                            }
+                            if (unitPlayer == "player2")
+                            {
+                                playerCard.transform.SetParent(SecondCard.transform, false);
+                            }
+                            if (unitPlayer == "player3")
+                            {
+                                playerCard.transform.SetParent(ThirdCard.transform, false);
+                            }
+                            if (unitPlayer == "player4")
+                            {
+                                playerCard.transform.SetParent(FourthCard.transform, false);
+                            }
+                        }
+                        if (player.IsLocal && player == gameManagerMultiplayer.startPlayer.GetNext())
+                        {
+                            if (unitPlayer == "player1")
+                            {
+                                playerCard.transform.SetParent(FourthCard.transform, false);
+                            }
+                            if (unitPlayer == "player2")
+                            {
+                                playerCard.transform.SetParent(CurrentCard.transform, false);
+                            }
+                            if (unitPlayer == "player3")
+                            {
+                                playerCard.transform.SetParent(SecondCard.transform, false);
+                            }
+                            if (unitPlayer == "player4")
+                            {
+                                playerCard.transform.SetParent(ThirdCard.transform, false);
+                            }
+                        }
+                        if (player.IsLocal && player == gameManagerMultiplayer.startPlayer.GetNext().GetNext())
+                        {
+                            if (unitPlayer == "player1")
+                            {
+                                playerCard.transform.SetParent(ThirdCard.transform, false);
+                            }
+                            if (unitPlayer == "player2")
+                            {
+                                playerCard.transform.SetParent(FourthCard.transform, false);
+                            }
+                            if (unitPlayer == "player3")
+                            {
+                                playerCard.transform.SetParent(CurrentCard.transform, false);
+                            }
+                            if (unitPlayer == "player4")
+                            {
+                                playerCard.transform.SetParent(SecondCard.transform, false);
+                            }
+                        }
+                        if (player.IsLocal && player == gameManagerMultiplayer.startPlayer.GetNext().GetNext().GetNext())
+                        {
+                            if (unitPlayer == "player1")
+                            {
+                                playerCard.transform.SetParent(SecondCard.transform, false);
+                            }
+                            if (unitPlayer == "player2")
+                            {
+                                playerCard.transform.SetParent(ThirdCard.transform, false);
+                            }
+                            if (unitPlayer == "player3")
+                            {
+                                playerCard.transform.SetParent(FourthCard.transform, false);
+                            }
+                            if (unitPlayer == "player4")
+                            {
+                                playerCard.transform.SetParent(CurrentCard.transform, false);
+                            }
+                        }
+                    }
                 }
             }
         }

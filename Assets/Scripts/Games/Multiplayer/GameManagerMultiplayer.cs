@@ -25,28 +25,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
 
     #endregion
 
-    #region Private Fields
+    #region Private Textfields
 
-    [SerializeField]
-    private ShuffleCards ShuffleCards;
-    [SerializeField]
-    private NextCardMultiplayer NextCard;
-    [SerializeField]
-    private GameObject playerHand;
-    [SerializeField]
-    private GameObject dropZone;
-    [SerializeField]
-    private GameObject yard;
-    [SerializeField]
-    private GameObject scoreBoard;
-    [SerializeField]
-    private GameObject TrumpfE;
-    [SerializeField]
-    private GameObject TrumpfS;
-    [SerializeField]
-    private GameObject TrumpfH;
-    [SerializeField]
-    private GameObject TrumpfB;
     [SerializeField]
     private Text currentPlayer;
     [SerializeField]
@@ -68,8 +48,40 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     [SerializeField]
     private Text Round;
 
+    #endregion
+
+    #region Private Fields
+
+    [SerializeField]
+    private ShuffleCards ShuffleCards;
+    [SerializeField]
+    private NextCardMultiplayer NextCard;
+    [SerializeField]
+    private GameObject playerHand;
+    [SerializeField]
+    private GameObject currentCard;
+    [SerializeField]
+    private GameObject secondCard;
+    [SerializeField]
+    private GameObject thirdCard;
+    [SerializeField]
+    private GameObject fourthCard;
+    [SerializeField]
+    private GameObject yard;
+    [SerializeField]
+    private GameObject scoreBoard;
+    [SerializeField]
+    private GameObject TrumpfE;
+    [SerializeField]
+    private GameObject TrumpfS;
+    [SerializeField]
+    private GameObject TrumpfH;
+    [SerializeField]
+    private GameObject TrumpfB;
+
     string trumpfUnit;
     private int round;
+    private int cardCount;
     RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
     private const byte CURRENT_PLAYER_EVENT = 2;
     private const byte TRUMPF_EVENT = 3;
@@ -94,7 +106,10 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             object[] datas = new object[] { false };
             PhotonNetwork.RaiseEvent(DEACTIVATE_SCOREBOARD_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
             start = 0;
-            SetupGame();
+            if (PhotonNetwork.IsMasterClient)
+            {
+                SetupGame();
+            }
         }
     }
 
@@ -102,6 +117,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     {
         foreach (Player player in PhotonNetwork.PlayerList)
         {
+            //Set playernickname on the card table for every player
             if (player.IsLocal)
             {
                 Player1.text = player.NickName;
@@ -109,6 +125,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
                 Player3.text = player.GetNext().GetNext().NickName;
                 Player4.text = player.GetNext().GetNext().GetNext().NickName;
             }
+            //Set firstplayer
             if (player.IsMasterClient)
             {
                 startPlayer = player;
@@ -172,15 +189,18 @@ public class GameManagerMultiplayer : MonoBehaviourPun
 
     void SetupGame()
     {
+        //Shuffle cards
         ShuffleCards.CardShuffle();
-        StartCoroutine(WaitForCards());
+        //Set round counter
         round = 1;
         object[] datas = new object[] { round };
         PhotonNetwork.RaiseEvent(SEND_ROUND_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
+        //Make all trumpf icons invisible
         TrumpfE.SetActive(false);
         TrumpfS.SetActive(false);
         TrumpfH.SetActive(false);
         TrumpfB.SetActive(false);
+        StartCoroutine(WaitForCards());
     }
 
     IEnumerator WaitForCards()
@@ -240,17 +260,22 @@ public class GameManagerMultiplayer : MonoBehaviourPun
 
     int GetChildCount()
     {
-        return dropZone.transform.childCount;
+        cardCount = 0;
+        cardCount += currentCard.transform.childCount;
+        cardCount += secondCard.transform.childCount;
+        cardCount += thirdCard.transform.childCount;
+        cardCount += fourthCard.transform.childCount;
+        return cardCount;
     }
 
     void CalculateRoundWinner()
     {
         if (GetChildCount() == 4)
         {
-            GameObject child1 = dropZone.transform.GetChild(0).gameObject;
-            GameObject child2 = dropZone.transform.GetChild(1).gameObject;
-            GameObject child3 = dropZone.transform.GetChild(2).gameObject;
-            GameObject child4 = dropZone.transform.GetChild(3).gameObject;
+            GameObject child1 = currentCard.transform.GetChild(0).gameObject;
+            GameObject child2 = secondCard.transform.GetChild(0).gameObject;
+            GameObject child3 = thirdCard.transform.GetChild(0).gameObject;
+            GameObject child4 = fourthCard.transform.GetChild(0).gameObject;
             dropzonecards.Add(child1);
             dropzonecards.Add(child2);
             dropzonecards.Add(child3);
@@ -332,10 +357,10 @@ public class GameManagerMultiplayer : MonoBehaviourPun
 
     void Winner(string winner)
     {
-        GameObject child1 = dropZone.transform.GetChild(0).gameObject;
-        GameObject child2 = dropZone.transform.GetChild(1).gameObject;
-        GameObject child3 = dropZone.transform.GetChild(2).gameObject;
-        GameObject child4 = dropZone.transform.GetChild(3).gameObject;
+        GameObject child1 = currentCard.transform.GetChild(0).gameObject;
+        GameObject child2 = secondCard.transform.GetChild(0).gameObject;
+        GameObject child3 = thirdCard.transform.GetChild(0).gameObject;
+        GameObject child4 = fourthCard.transform.GetChild(0).gameObject;
         if (winner == "player1")
         {
             player1.Add(child1);
@@ -369,15 +394,15 @@ public class GameManagerMultiplayer : MonoBehaviourPun
 
     IEnumerator Wait(string winner)
     {
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(3f);
         //clear all cards frome the dropzone
         dropzonecards.Clear();
         trumpfcards.Clear();
         othercards.Clear();
-        while (dropZone.transform.childCount > 0)
-        {
-            dropZone.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
-        }
+        currentCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+        secondCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+        thirdCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+        fourthCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
         for (int i = 0; i < yard.transform.childCount; i++)
         {
             yard.transform.GetChild(i).gameObject.SetActive(false);
@@ -447,16 +472,18 @@ public class GameManagerMultiplayer : MonoBehaviourPun
 
     IEnumerator ClearDropZone()
     {
-        yield return new WaitForSeconds(1.5f);
-        for (int i = 3; i > -1; i--)
-        {
-            Destroy(dropZone.transform.GetChild(i).gameObject);
-        }
+        yield return new WaitForSeconds(3f);
+        Destroy(currentCard.transform.GetChild(0).gameObject);
+        Destroy(secondCard.transform.GetChild(0).gameObject);
+        Destroy(thirdCard.transform.GetChild(0).gameObject);
+        Destroy(fourthCard.transform.GetChild(0).gameObject);
     }
 
     void EndGame()
     {
+        //Set scoreboard active
         scoreBoard.SetActive(true);
+        //Enable "new game button" only for master client 
         if (!PhotonNetwork.IsMasterClient)
         {
             if (scoreBoard.GetComponentInChildren<Button>() == true)
@@ -493,7 +520,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         {
             object[] datas = (object[])obj.CustomData;
             string p = (string)datas[0];
-            currentPlayer.text = "Current Player: " + p;
+            currentPlayer.text = "Am Zug: " + p;
         }
         if (obj.Code == TRUMPF_EVENT)
         {
@@ -541,7 +568,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             object[] datas = (object[])obj.CustomData;
             int r = (int)datas[0];
             round = r;
-            Round.text = round.ToString();
+            Round.text = "Runde: " + round.ToString();
         }
     }
     #endregion
