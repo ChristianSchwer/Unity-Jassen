@@ -520,6 +520,32 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         {
             object[] datas = (object[])obj.CustomData;
             string p = (string)datas[0];
+            Player1.color = Color.black;
+            Player2.color = Color.black;
+            Player3.color = Color.black;
+            Player4.color = Color.black;
+            foreach (Player player in PhotonNetwork.PlayerList)
+            {
+                if(player.IsLocal)
+                {
+                    if (Player1.text == p)
+                    {
+                        Player1.color = Color.red;
+                    }
+                    if (Player2.text == p)
+                    {
+                        Player2.color = Color.red;
+                    }
+                    if (Player3.text == p)
+                    {
+                        Player3.color = Color.red;
+                    }
+                    if (Player4.text == p)
+                    {
+                        Player4.color = Color.red;
+                    }
+                }
+            }
             currentPlayer.text = "Am Zug: " + p;
         }
         if (obj.Code == TRUMPF_EVENT)
