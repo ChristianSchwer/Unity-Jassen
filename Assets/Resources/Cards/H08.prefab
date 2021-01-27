@@ -118,6 +118,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af8559f489498c14d821304c4450f2c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitName: H8
+  unitName: H08
   unitValue: 0
   unitStrength: 2
+  unitPlayer: 

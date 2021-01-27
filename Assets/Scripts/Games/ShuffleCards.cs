@@ -12,37 +12,37 @@ public class ShuffleCards : MonoBehaviourPun
 {
     #region Public Fields
 
-    public GameObject E6;
-    public GameObject E7;
-    public GameObject E8;
-    public GameObject E9;
+    public GameObject E06;
+    public GameObject E07;
+    public GameObject E08;
+    public GameObject E09;
     public GameObject E10;
     public GameObject E11;
     public GameObject E12;
     public GameObject E13;
     public GameObject E14;
-    public GameObject B6;
-    public GameObject B7;
-    public GameObject B8;
-    public GameObject B9;
+    public GameObject B06;
+    public GameObject B07;
+    public GameObject B08;
+    public GameObject B09;
     public GameObject B10;
     public GameObject B11;
     public GameObject B12;
     public GameObject B13;
     public GameObject B14;
-    public GameObject H6;
-    public GameObject H7;
-    public GameObject H8;
-    public GameObject H9;
+    public GameObject H06;
+    public GameObject H07;
+    public GameObject H08;
+    public GameObject H09;
     public GameObject H10;
     public GameObject H11;
     public GameObject H12;
     public GameObject H13;
     public GameObject H14;
-    public GameObject S6;
-    public GameObject S7;
-    public GameObject S8;
-    public GameObject S9;
+    public GameObject S06;
+    public GameObject S07;
+    public GameObject S08;
+    public GameObject S09;
     public GameObject S10;
     public GameObject S11;
     public GameObject S12;
@@ -57,8 +57,6 @@ public class ShuffleCards : MonoBehaviourPun
     private GameObject playerHand;
     [SerializeField]
     private GameManagerMultiplayer gameManagerMultiplayer;
-    List<string> cardsName = new List<string>();
-    public List<GameObject> cards = new List<GameObject>();
 
     RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
     private const byte CARDS_SHUFFLE_EVENT = 1;
@@ -67,40 +65,19 @@ public class ShuffleCards : MonoBehaviourPun
     private const byte SEND_PLAYER3HAND_EVENT = 9;
     private const byte SEND_PLAYER4HAND_EVENT = 10;
 
+    List<string> cardsName = new List<string>();
+    public List<GameObject> cards = new List<GameObject>();
     List<string> player1 = new List<string>();
     List<string> player2 = new List<string>();
     List<string> player3 = new List<string>();
-    List<string> player4 = new List<string>();
+    List<string> player4 = new List<string>();    
+    List<GameObject> playerUnsorted1 = new List<GameObject>();
+    List<GameObject> playerUnsorted2 = new List<GameObject>();
+    List<GameObject> playerUnsorted3 = new List<GameObject>();
+    List<GameObject> playerUnsorted4 = new List<GameObject>();
 
-    #endregion
+    PlayCard currentUnit;
 
-    #region MonoBehaviour Callbacks
-
-    private void OnEnable()
-    {
-        PhotonNetwork.NetworkingClient.EventReceived += NetworkingClient_EventReceived;
-    }
-
-    private void OnDisable()
-    {
-        PhotonNetwork.NetworkingClient.EventReceived -= NetworkingClient_EventReceived;
-    }
-
-    private void NetworkingClient_EventReceived(EventData obj)
-    {
-        if (obj.Code == CARDS_SHUFFLE_EVENT)
-        {
-            cardsName.Clear();
-            object[] datas = (object[])obj.CustomData;
-            Array array = (Array)datas[0];
-            foreach (string s in array)
-            {
-                cardsName.Add(s);
-            }
-            AddCards();
-            GiveCards();
-        }
-    }
 
     #endregion
 
@@ -189,19 +166,19 @@ public class ShuffleCards : MonoBehaviourPun
         {
             if (cardName == "E6")
             {
-                cards.Add(E6);
+                cards.Add(E06);
             }
             if (cardName == "E7")
             {
-                cards.Add(E7);
+                cards.Add(E07);
             }
             if (cardName == "E8")
             {
-                cards.Add(E8);
+                cards.Add(E08);
             }
             if (cardName == "E9")
             {
-                cards.Add(E9);
+                cards.Add(E09);
             }
             if (cardName == "E10")
             {
@@ -225,19 +202,19 @@ public class ShuffleCards : MonoBehaviourPun
             }
             if (cardName == "B6")
             {
-                cards.Add(B6);
+                cards.Add(B06);
             }
             if (cardName == "B7")
             {
-                cards.Add(B7);
+                cards.Add(B07);
             }
             if (cardName == "B8")
             {
-                cards.Add(B8);
+                cards.Add(B08);
             }
             if (cardName == "B9")
             {
-                cards.Add(B9);
+                cards.Add(B09);
             }
             if (cardName == "B10")
             {
@@ -261,19 +238,19 @@ public class ShuffleCards : MonoBehaviourPun
             }
             if (cardName == "H6")
             {
-                cards.Add(H6);
+                cards.Add(H06);
             }
             if (cardName == "H7")
             {
-                cards.Add(H7);
+                cards.Add(H07);
             }
             if (cardName == "H8")
             {
-                cards.Add(H8);
+                cards.Add(H08);
             }
             if (cardName == "H9")
             {
-                cards.Add(H9);
+                cards.Add(H09);
             }
             if (cardName == "H10")
             {
@@ -297,19 +274,19 @@ public class ShuffleCards : MonoBehaviourPun
             }
             if (cardName == "S6")
             {
-                cards.Add(S6);
+                cards.Add(S06);
             }
             if (cardName == "S7")
             {
-                cards.Add(S7);
+                cards.Add(S07);
             }
             if (cardName == "S8")
             {
-                cards.Add(S8);
+                cards.Add(S08);
             }
             if (cardName == "S9")
             {
-                cards.Add(S9);
+                cards.Add(S09);
             }
             if (cardName == "S10")
             {
@@ -340,9 +317,14 @@ public class ShuffleCards : MonoBehaviourPun
         {
             for (int i = 0; i <= 8; i++)
             {
-                GameObject playerCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
+                playerUnsorted1.Add(cards[i]);
+            }
+            playerUnsorted1.Sort(CompareList);
+            foreach (GameObject card in playerUnsorted1)
+            {
+                GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
                 playerCard.transform.SetParent(playerHand.transform, false);
-                player1.Add(cards[i].name);
+                player1.Add(card.name);
             }
             object[] data = new object[] { player1.ToArray() };
             PhotonNetwork.RaiseEvent(SEND_PLAYER1HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
@@ -351,9 +333,14 @@ public class ShuffleCards : MonoBehaviourPun
         {
             for (int i = 9; i <= 17; i++)
             {
-                GameObject playerCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
+                playerUnsorted2.Add(cards[i]);
+            }
+            playerUnsorted2.Sort(CompareList);
+            foreach (GameObject card in playerUnsorted2)
+            {
+                GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
                 playerCard.transform.SetParent(playerHand.transform, false);
-                player2.Add(cards[i].name);
+                player2.Add(card.name);
             }
             object[] data = new object[] { player2.ToArray() };
             PhotonNetwork.RaiseEvent(SEND_PLAYER2HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
@@ -362,9 +349,14 @@ public class ShuffleCards : MonoBehaviourPun
         {
             for (int i = 18; i <= 26; i++)
             {
-                GameObject playerCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
+                playerUnsorted3.Add(cards[i]);
+            }
+            playerUnsorted3.Sort(CompareList);
+            foreach (GameObject card in playerUnsorted3)
+            {
+                GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
                 playerCard.transform.SetParent(playerHand.transform, false);
-                player3.Add(cards[i].name);
+                player3.Add(card.name);
             }
             object[] data = new object[] { player3.ToArray() };
             PhotonNetwork.RaiseEvent(SEND_PLAYER3HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
@@ -373,12 +365,43 @@ public class ShuffleCards : MonoBehaviourPun
         {
             for (int i = 27; i <= 35; i++)
             {
-                GameObject playerCard = Instantiate(cards[i], new Vector3(0, 0, 0), Quaternion.identity);
+                playerUnsorted4.Add(cards[i]);
+            }
+            playerUnsorted4.Sort(CompareList);
+            foreach (GameObject card in playerUnsorted4)
+            {
+                GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
                 playerCard.transform.SetParent(playerHand.transform, false);
-                player4.Add(cards[i].name);
+                player4.Add(card.name);
             }
             object[] data = new object[] { player4.ToArray() };
             PhotonNetwork.RaiseEvent(SEND_PLAYER4HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
+        }
+    }
+
+    private static int CompareList(GameObject card1, GameObject card2)
+    {
+        return card1.name.CompareTo(card2.name);
+    }
+
+    public void ResetCards(List<GameObject> cards)
+    {
+        foreach (GameObject card in cards)
+        {
+            currentUnit = card.GetComponent<PlayCard>();
+            currentUnit.ResetCard();
+            if (card.gameObject.name.Contains("9"))
+            {
+                currentUnit = card.GetComponent<PlayCard>();
+                string currentName = currentUnit.unitName.Substring(0, 1);
+                currentUnit.ResetSnell(currentName);
+            }
+            if (card.gameObject.name.Contains("11"))
+            {
+                currentUnit = card.GetComponent<PlayCard>();
+                string currentName = currentUnit.unitName.Substring(0, 1);
+                currentUnit.ResetBauer(currentName);
+            }
         }
     }
 
@@ -388,8 +411,44 @@ public class ShuffleCards : MonoBehaviourPun
         player2.Clear();
         player3.Clear();
         player4.Clear();
+        playerUnsorted1.Clear();
+        playerUnsorted2.Clear();
+        playerUnsorted3.Clear();
+        playerUnsorted4.Clear();
         cards.Clear();
         cardsName.Clear();
+}
+
+    #endregion
+
+    #region MonoBehaviour Callbacks
+
+    private void OnEnable()
+    {
+        PhotonNetwork.NetworkingClient.EventReceived += NetworkingClient_EventReceived;
+    }
+
+    private void OnDisable()
+    {
+        PhotonNetwork.NetworkingClient.EventReceived -= NetworkingClient_EventReceived;
+    }
+
+    private void NetworkingClient_EventReceived(EventData obj)
+    {
+        if (obj.Code == CARDS_SHUFFLE_EVENT)
+        {
+            cardsName.Clear();
+            object[] datas = (object[])obj.CustomData;
+            Array array = (Array)datas[0];
+            foreach (string s in array)
+            {
+                cardsName.Add(s);
+            }
+            AddCards();
+            ResetCards(cards);
+            gameManagerMultiplayer.GetTrumpf(cards);
+            GiveCards();
+        }
     }
 
     #endregion

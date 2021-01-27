@@ -10,20 +10,32 @@ using System;
 
 public class NextCardMultiplayer : MonoBehaviour
 {
-    GraphicRaycaster m_Raycaster;
-    PointerEventData m_PointerEventData;
-    EventSystem m_EventSystem;
+    #region Public Fields
+
+    public GameManagerMultiplayer gameManagerMultiplayer;
+    public GameObject playerHand;
     public GameObject CurrentCard;
     public GameObject SecondCard;
     public GameObject ThirdCard;
     public GameObject FourthCard;
 
+    #endregion
+
+    #region Private Fields
+
+    [SerializeField]
+    private ShuffleCards ShuffleCards;
+    [SerializeField]
+    private GameObject playerHandOverlay;
+
+    GraphicRaycaster m_Raycaster;
+    PointerEventData m_PointerEventData;
+    EventSystem m_EventSystem;
+
     string playerString;
     string firstLetter;
     string trumpf;
     int move;
-
-    public GameObject playerHand;
 
     List<string> player1 = new List<string>();
     List<string> player2 = new List<string>();
@@ -45,14 +57,9 @@ public class NextCardMultiplayer : MonoBehaviour
 
     Player currentPlayer;
 
-    //TurnState state;          Enum over all scripts, dosn't work
+    #endregion
 
-    public GameManagerMultiplayer gameManagerMultiplayer;
-
-    [SerializeField]
-    private ShuffleCards ShuffleCards;
-    [SerializeField]
-    private GameObject playerHandOverlay;
+    #region MonoBehaviour Callbacks
 
     void Start()
     {
@@ -163,6 +170,8 @@ public class NextCardMultiplayer : MonoBehaviour
             }
         }
     }
+
+    #endregion
 
     public void nextCard(Player player, int currentNumber)
     {

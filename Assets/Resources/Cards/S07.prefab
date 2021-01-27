@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &7999364810374216764
+--- !u!1 &499096697869311008
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,26 +8,26 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7999364810374216765}
-  - component: {fileID: 7999364810374216753}
-  - component: {fileID: 7999364810374216752}
-  - component: {fileID: 2270982568074072960}
-  - component: {fileID: 1663820289249020976}
-  - component: {fileID: 555796214635123061}
+  - component: {fileID: 499096697869311009}
+  - component: {fileID: 499096697869311021}
+  - component: {fileID: 499096697869311020}
+  - component: {fileID: 8532756388091769756}
+  - component: {fileID: 9149420637801540652}
+  - component: {fileID: 7951320176419025257}
   m_Layer: 8
-  m_Name: H7
+  m_Name: S7
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &7999364810374216765
+--- !u!224 &499096697869311009
 RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7999364810374216764}
+  m_GameObject: {fileID: 499096697869311008}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -40,21 +40,21 @@ RectTransform:
   m_AnchoredPosition: {x: -51.600464, y: -11.907898}
   m_SizeDelta: {x: 80, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &7999364810374216753
+--- !u!222 &499096697869311021
 CanvasRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7999364810374216764}
+  m_GameObject: {fileID: 499096697869311008}
   m_CullTransparentMesh: 0
---- !u!114 &7999364810374216752
+--- !u!114 &499096697869311020
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7999364810374216764}
+  m_GameObject: {fileID: 499096697869311008}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
@@ -67,7 +67,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 36b3d9500aae33d40ab9c31a355c221e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 48ad5ecb7cf24a145bce516a02b6b3db, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -77,26 +77,26 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!65 &2270982568074072960
+--- !u!65 &8532756388091769756
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7999364810374216764}
+  m_GameObject: {fileID: 499096697869311008}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 80, y: 120, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!54 &1663820289249020976
+--- !u!54 &9149420637801540652
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7999364810374216764}
+  m_GameObject: {fileID: 499096697869311008}
   serializedVersion: 2
   m_Mass: 1
   m_Drag: 0
@@ -106,18 +106,19 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 126
   m_CollisionDetection: 1
---- !u!114 &555796214635123061
+--- !u!114 &7951320176419025257
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7999364810374216764}
+  m_GameObject: {fileID: 499096697869311008}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: af8559f489498c14d821304c4450f2c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitName: H7
+  unitName: S07
   unitValue: 0
   unitStrength: 1
+  unitPlayer: 

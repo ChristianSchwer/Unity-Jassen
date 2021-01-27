@@ -10,18 +10,10 @@ public class GameManagerMultiplayer : MonoBehaviourPun
 {
     #region Public Fields
 
-    public List<GameObject> cards = new List<GameObject>();
-    List<GameObject> dropzonecards = new List<GameObject>();
-    List<GameObject> trumpfcards = new List<GameObject>();
-    List<GameObject> othercards = new List<GameObject>();
-    List<GameObject> player1 = new List<GameObject>();
-    List<GameObject> player2 = new List<GameObject>();
-    List<GameObject> player3 = new List<GameObject>();
-    List<GameObject> player4 = new List<GameObject>();
     public static int start;
+    public int playerNumber;
     public Player activePlayer;
     public Player startPlayer;
-    public int playerNumber;
 
     #endregion
 
@@ -50,12 +42,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
 
     #endregion
 
-    #region Private Fields
+    #region Private GameObjects
 
-    [SerializeField]
-    private ShuffleCards ShuffleCards;
-    [SerializeField]
-    private NextCardMultiplayer NextCard;
     [SerializeField]
     private GameObject playerHand;
     [SerializeField]
@@ -79,9 +67,27 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     [SerializeField]
     private GameObject TrumpfB;
 
+    #endregion
+
+    #region Private Fields
+
+    [SerializeField]
+    private ShuffleCards ShuffleCards;
+    [SerializeField]
+    private NextCardMultiplayer NextCard;
+
+    List<GameObject> dropzonecards = new List<GameObject>();
+    List<GameObject> trumpfcards = new List<GameObject>();
+    List<GameObject> othercards = new List<GameObject>();
+    List<GameObject> player1 = new List<GameObject>();
+    List<GameObject> player2 = new List<GameObject>();
+    List<GameObject> player3 = new List<GameObject>();
+    List<GameObject> player4 = new List<GameObject>();
+
     string trumpfUnit;
     private int round;
     private int cardCount;
+
     RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
     private const byte CURRENT_PLAYER_EVENT = 2;
     private const byte TRUMPF_EVENT = 3;
@@ -90,10 +96,11 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     private const byte DEACTIVATE_SCOREBOARD_EVENT= 14;
     private const byte SEND_PLAYERNUMBER_EVENT = 15;
     private const byte SEND_ROUND_EVENT = 16;
-
-    #endregion
+    private const byte SET_TRUMPF_AKTIVE_EVENT = 17;
 
     PlayCard currentUnit;
+
+    #endregion
 
     #region MonoBehaviour Callbacks
 
@@ -196,52 +203,21 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         object[] datas = new object[] { round };
         PhotonNetwork.RaiseEvent(SEND_ROUND_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         //Make all trumpf icons invisible
-        TrumpfE.SetActive(false);
-        TrumpfS.SetActive(false);
-        TrumpfH.SetActive(false);
-        TrumpfB.SetActive(false);
-        StartCoroutine(WaitForCards());
+        object[] trumpfData = new object[] { false };
+        PhotonNetwork.RaiseEvent(SET_TRUMPF_AKTIVE_EVENT, trumpfData, raiseEventOptions, SendOptions.SendReliable);
+        //Set start player
+        object[] startData = new object[] { true, startPlayer };
+        PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, startData, raiseEventOptions, SendOptions.SendReliable);
     }
 
-    IEnumerator WaitForCards()
+    public void GetTrumpf(List<GameObject> cards)
     {
-        yield return new WaitForSeconds(0.5f);
-        cards = ShuffleCards.GetCards();
-        ResetCards();
-        GetTrumpf();
-        object[] datas = new object[] { true, startPlayer };
-        PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
-    }
-
-    void ResetCards()
-    {
-        foreach (GameObject card in cards)
-        {
-            currentUnit = card.GetComponent<PlayCard>();
-            currentUnit.ResetCard();
-            if (card.gameObject.name.Contains("9"))
-            {
-                currentUnit = card.GetComponent<PlayCard>();
-                string currentName = currentUnit.unitName.Substring(0, 1);
-                currentUnit.ResetSnell(currentName);
-            }
-            if (card.gameObject.name.Contains("11"))
-            {
-                currentUnit = card.GetComponent<PlayCard>();
-                string currentName = currentUnit.unitName.Substring(0, 1);
-                currentUnit.ResetBauer(currentName);
-            }
-        }
-    }
-
-    void GetTrumpf()
-    {
+        //Set trumpf
         currentUnit = cards[35].GetComponent<PlayCard>();
         trumpfUnit = currentUnit.unitName.Substring(0, 1);
-        Debug.Log(trumpfUnit);
+        //Send trumpf to all players;
         object[] datas = new object[] { trumpfUnit };
         PhotonNetwork.RaiseEvent(TRUMPF_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
-
         foreach (GameObject card in cards)
         {
             if (card.gameObject.name.Contains(trumpfUnit + 9))
@@ -497,12 +473,17 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         player2.Clear();
         player3.Clear();
         player4.Clear();
-        cards.Clear();
         ShuffleCards.ClearList();
         NextCard.ClearList();
+        activePlayer = null;
         //Set start player to the next player
         startPlayer = startPlayer.GetNext();
-    }
+        playerNumber = 1;
+        trumpfUnit = null;
+        round = 0;
+        cardCount = 0;
+
+}
 
     private void OnEnable()
     {
@@ -552,7 +533,6 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         {
             object[] datas = (object[])obj.CustomData;
             string t = (string)datas[0];
-            Debug.Log(t);
             if (t == "E")
             {
                 TrumpfE.SetActive(true);
@@ -595,6 +575,15 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             int r = (int)datas[0];
             round = r;
             Round.text = "Runde: " + round.ToString();
+        }
+        if (obj.Code == SET_TRUMPF_AKTIVE_EVENT)
+        {
+            object[] datas = (object[])obj.CustomData;
+            bool active = (bool)datas[0]; 
+            TrumpfE.SetActive(active);
+            TrumpfS.SetActive(active);
+            TrumpfH.SetActive(active);
+            TrumpfB.SetActive(active);
         }
     }
     #endregion
