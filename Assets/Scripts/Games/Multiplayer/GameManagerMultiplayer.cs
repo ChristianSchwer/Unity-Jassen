@@ -92,6 +92,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     private const byte CURRENT_PLAYER_EVENT = 2;
     private const byte TRUMPF_EVENT = 3;
     private const byte SET_AKTIVE_EVENT = 5;
+    private const byte RESET_VARIABELS_EVENT = 9;
+    private const byte SET_STARTPLAYER_EVENT = 10;
     private const byte SEND_SCORE_EVENT= 13;
     private const byte DEACTIVATE_SCOREBOARD_EVENT= 14;
     private const byte SEND_PLAYERNUMBER_EVENT = 15;
@@ -132,15 +134,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
                 Player3.text = player.GetNext().GetNext().NickName;
                 Player4.text = player.GetNext().GetNext().GetNext().NickName;
             }
-            //Set firstplayer
-            if (player.IsMasterClient)
-            {
-                startPlayer = player;
-                playerNumber = 1;
-                object[] datas = new object[] { playerNumber };
-                PhotonNetwork.RaiseEvent(SEND_PLAYERNUMBER_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
-            }
         }
+
     }
 
     #endregion
@@ -149,7 +144,6 @@ public class GameManagerMultiplayer : MonoBehaviourPun
 
     public void PlayerTurn(Player p)
     {
-        CurrentPlayer(p.ActorNumber);
         activePlayer = null;
         if (GetChildCount() == 4)
         {
@@ -167,6 +161,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         }
         else
         {
+            CurrentPlayer(p.ActorNumber);
             NextCard.nextCard(p, playerNumber);
         }
         if (playerHand.transform.childCount == 0 && GetChildCount() == 0)
@@ -196,6 +191,26 @@ public class GameManagerMultiplayer : MonoBehaviourPun
 
     void SetupGame()
     {
+        //Reset Variables
+        object[] resetData = new object[] { true };
+        PhotonNetwork.RaiseEvent(RESET_VARIABELS_EVENT, resetData, raiseEventOptions, SendOptions.SendReliable);
+        //Set start player
+        if (startPlayer == null)
+        {
+            foreach (Player player in PhotonNetwork.PlayerList)
+            {
+                if (player.IsMasterClient)
+                {
+                    startPlayer = player;
+                }
+            }
+        }
+        object[] startPlayerData = new object[] { startPlayer };
+        PhotonNetwork.RaiseEvent(SET_STARTPLAYER_EVENT, startPlayerData, raiseEventOptions, SendOptions.SendReliable);
+        //Set player number
+        playerNumber = 1;
+        object[] data = new object[] { playerNumber };
+        PhotonNetwork.RaiseEvent(SEND_PLAYERNUMBER_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
         //Shuffle cards
         ShuffleCards.CardShuffle();
         //Set round counter
@@ -205,7 +220,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         //Make all trumpf icons invisible
         object[] trumpfData = new object[] { false };
         PhotonNetwork.RaiseEvent(SET_TRUMPF_AKTIVE_EVENT, trumpfData, raiseEventOptions, SendOptions.SendReliable);
-        //Set start player
+        //Send current player
         object[] startData = new object[] { true, startPlayer };
         PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, startData, raiseEventOptions, SendOptions.SendReliable);
     }
@@ -220,7 +235,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         PhotonNetwork.RaiseEvent(TRUMPF_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
         foreach (GameObject card in cards)
         {
-            if (card.gameObject.name.Contains(trumpfUnit + 9))
+            if (card.gameObject.name.Contains(trumpfUnit + "09"))
             {
                 currentUnit = card.GetComponent<PlayCard>();
                 currentUnit.ChangeSnell(trumpfUnit);
@@ -244,6 +259,30 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         return cardCount;
     }
 
+    void Test(GameObject child1, GameObject child2, GameObject child3, GameObject child4)
+    {
+        Debug.Log(child1);
+        Debug.Log(round -1 + " " + child1.GetComponent<PlayCard>().unitName);
+        Debug.Log(round -1 + " " + child1.GetComponent<PlayCard>().unitStrength.ToString());
+        Debug.Log(round -1 + " " + child1.GetComponent<PlayCard>().unitValue.ToString());
+        Debug.Log(round -1 + " " + child1.GetComponent<PlayCard>().unitPlayer);
+        Debug.Log(child2);
+        Debug.Log(round -1 + " " + child2.GetComponent<PlayCard>().unitName);
+        Debug.Log(round -1 + " " + child2.GetComponent<PlayCard>().unitStrength.ToString());
+        Debug.Log(round -1 + " " + child2.GetComponent<PlayCard>().unitValue.ToString());
+        Debug.Log(round -1 + " " + child2.GetComponent<PlayCard>().unitPlayer);
+        Debug.Log(child3);
+        Debug.Log(round -1 + " " + child3.GetComponent<PlayCard>().unitName);
+        Debug.Log(round -1 + " " + child3.GetComponent<PlayCard>().unitStrength.ToString());
+        Debug.Log(round -1 + " " + child3.GetComponent<PlayCard>().unitValue.ToString());
+        Debug.Log(round -1 + " " + child3.GetComponent<PlayCard>().unitPlayer);
+        Debug.Log(child4);
+        Debug.Log(round -1 + " " + child4.GetComponent<PlayCard>().unitName);
+        Debug.Log(round -1 + " " + child4.GetComponent<PlayCard>().unitStrength.ToString());
+        Debug.Log(round -1 + " " + child4.GetComponent<PlayCard>().unitValue.ToString());
+        Debug.Log(round -1 + " " + child4.GetComponent<PlayCard>().unitPlayer);
+    }
+
     void CalculateRoundWinner()
     {
         if (GetChildCount() == 4)
@@ -252,6 +291,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             GameObject child2 = secondCard.transform.GetChild(0).gameObject;
             GameObject child3 = thirdCard.transform.GetChild(0).gameObject;
             GameObject child4 = fourthCard.transform.GetChild(0).gameObject;
+            Test(child1, child2, child3, child4);
             dropzonecards.Add(child1);
             dropzonecards.Add(child2);
             dropzonecards.Add(child3);
@@ -468,7 +508,14 @@ public class GameManagerMultiplayer : MonoBehaviourPun
                 newGameButton.gameObject.SetActive(false);
             }
         }
-        //Clear Lists
+        //Set start player to the next player
+        startPlayer = startPlayer.GetNext();
+        //Clear Variables
+        ClearVariables();
+    }
+
+    void ClearVariables()
+    {
         player1.Clear();
         player2.Clear();
         player3.Clear();
@@ -476,14 +523,11 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         ShuffleCards.ClearList();
         NextCard.ClearList();
         activePlayer = null;
-        //Set start player to the next player
-        startPlayer = startPlayer.GetNext();
         playerNumber = 1;
         trumpfUnit = null;
         round = 0;
         cardCount = 0;
-
-}
+    }
 
     private void OnEnable()
     {
@@ -497,6 +541,21 @@ public class GameManagerMultiplayer : MonoBehaviourPun
 
     private void NetworkingClient_EventReceived(EventData obj)
     {
+        if (obj.Code == RESET_VARIABELS_EVENT)
+        {
+            object[] datas = (object[])obj.CustomData;
+            bool reset = (bool)datas[0];
+            if (reset)
+            {
+                ClearVariables();
+            }
+        }
+        if (obj.Code == SET_STARTPLAYER_EVENT)
+        {
+            object[] datas = (object[])obj.CustomData;
+            Player sPlayer = (Player)datas[0];
+            startPlayer = sPlayer;
+        }
         if (obj.Code == CURRENT_PLAYER_EVENT)
         {
             object[] datas = (object[])obj.CustomData;

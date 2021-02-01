@@ -60,10 +60,7 @@ public class ShuffleCards : MonoBehaviourPun
 
     RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
     private const byte CARDS_SHUFFLE_EVENT = 1;
-    private const byte SEND_PLAYER1HAND_EVENT = 7;
-    private const byte SEND_PLAYER2HAND_EVENT = 8;
-    private const byte SEND_PLAYER3HAND_EVENT = 9;
-    private const byte SEND_PLAYER4HAND_EVENT = 10;
+    private const byte SEND_PLAYERHAND_EVENT = 7;
 
     List<string> cardsName = new List<string>();
     public List<GameObject> cards = new List<GameObject>();
@@ -326,8 +323,6 @@ public class ShuffleCards : MonoBehaviourPun
                 playerCard.transform.SetParent(playerHand.transform, false);
                 player1.Add(card.name);
             }
-            object[] data = new object[] { player1.ToArray() };
-            PhotonNetwork.RaiseEvent(SEND_PLAYER1HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
         }
         if (gameManagerMultiplayer.startPlayer.GetNext().ActorNumber == p.ActorNumber)
         {
@@ -342,8 +337,6 @@ public class ShuffleCards : MonoBehaviourPun
                 playerCard.transform.SetParent(playerHand.transform, false);
                 player2.Add(card.name);
             }
-            object[] data = new object[] { player2.ToArray() };
-            PhotonNetwork.RaiseEvent(SEND_PLAYER2HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
         }
         if (gameManagerMultiplayer.startPlayer.GetNext().GetNext().ActorNumber == p.ActorNumber)
         {
@@ -358,8 +351,6 @@ public class ShuffleCards : MonoBehaviourPun
                 playerCard.transform.SetParent(playerHand.transform, false);
                 player3.Add(card.name);
             }
-            object[] data = new object[] { player3.ToArray() };
-            PhotonNetwork.RaiseEvent(SEND_PLAYER3HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
         }
         if (gameManagerMultiplayer.startPlayer.GetNext().GetNext().GetNext().ActorNumber == p.ActorNumber)
         {
@@ -374,9 +365,9 @@ public class ShuffleCards : MonoBehaviourPun
                 playerCard.transform.SetParent(playerHand.transform, false);
                 player4.Add(card.name);
             }
-            object[] data = new object[] { player4.ToArray() };
-            PhotonNetwork.RaiseEvent(SEND_PLAYER4HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
         }
+        object[] data = new object[] { player1.ToArray(), player2.ToArray(), player3.ToArray(), player4.ToArray() };
+        PhotonNetwork.RaiseEvent(SEND_PLAYERHAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
     }
 
     private static int CompareList(GameObject card1, GameObject card2)
@@ -401,6 +392,23 @@ public class ShuffleCards : MonoBehaviourPun
                 currentUnit = card.GetComponent<PlayCard>();
                 string currentName = currentUnit.unitName.Substring(0, 1);
                 currentUnit.ResetBauer(currentName);
+            }
+        }
+    }
+
+    public void Test()
+    {
+        foreach (GameObject card in cards)
+        {
+            if (card.name.Contains("9"))
+            {
+                currentUnit = card.GetComponent<PlayCard>();
+                Debug.Log(card);
+                Debug.Log(currentUnit);
+                Debug.Log(currentUnit.unitName);
+                Debug.Log(currentUnit.unitPlayer);
+                Debug.Log(currentUnit.unitStrength);
+                Debug.Log(currentUnit.unitValue);
             }
         }
     }
@@ -448,6 +456,7 @@ public class ShuffleCards : MonoBehaviourPun
             ResetCards(cards);
             gameManagerMultiplayer.GetTrumpf(cards);
             GiveCards();
+            //Test();
         }
     }
 

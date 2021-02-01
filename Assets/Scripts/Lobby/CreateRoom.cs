@@ -21,16 +21,7 @@ public class CreateRoom : MonoBehaviourPunCallbacks
 
     #region Public Fields
 
-    int maxPlayersPerRoom = 4;
-
-    #endregion
-
-    #region MonoBehaviour Callbacks
-
-    void Start()
-    {
-        //maxPlayersPerRoom = Convert.ToInt32(_numberOfPlayer.text);
-    }
+    int maxPlayersPerRoom;
 
     #endregion
 
@@ -42,10 +33,17 @@ public class CreateRoom : MonoBehaviourPunCallbacks
         {
             return;
         }
-        Debug.Log("NetworkManager: CreateRoom()");
-        RoomOptions options = new RoomOptions();
-        options.MaxPlayers = Convert.ToByte(maxPlayersPerRoom);
-        PhotonNetwork.CreateRoom(_roomName.text, options, TypedLobby.Default);
+        if (_numberOfPlayer.text != "")
+        {
+            if (Convert.ToInt32(_numberOfPlayer.text) <= 6 && Convert.ToInt32(_numberOfPlayer.text) >= 2)
+            {
+                Debug.Log("NetworkManager: CreateRoom()");
+                maxPlayersPerRoom = Convert.ToInt32(_numberOfPlayer.text);
+                RoomOptions options = new RoomOptions();
+                options.MaxPlayers = Convert.ToByte(maxPlayersPerRoom);
+                PhotonNetwork.CreateRoom(_roomName.text, options, TypedLobby.Default);
+            }
+        }
     }
 
     #endregion
