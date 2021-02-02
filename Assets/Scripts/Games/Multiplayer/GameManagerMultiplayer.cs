@@ -14,6 +14,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     public int playerNumber;
     public Player activePlayer;
     public Player startPlayer;
+    public Player lastPlayer;
 
     #endregion
 
@@ -152,6 +153,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             PhotonNetwork.RaiseEvent(SEND_ROUND_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
             if (PhotonNetwork.IsMasterClient)
             {
+                lastPlayer = p;
                 CalculateRoundWinner();
             }
             else
@@ -259,44 +261,38 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         return cardCount;
     }
 
-    void Test(GameObject child1, GameObject child2, GameObject child3, GameObject child4)
-    {
-        Debug.Log(child1);
-        Debug.Log(round -1 + " " + child1.GetComponent<PlayCard>().unitName);
-        Debug.Log(round -1 + " " + child1.GetComponent<PlayCard>().unitStrength.ToString());
-        Debug.Log(round -1 + " " + child1.GetComponent<PlayCard>().unitValue.ToString());
-        Debug.Log(round -1 + " " + child1.GetComponent<PlayCard>().unitPlayer);
-        Debug.Log(child2);
-        Debug.Log(round -1 + " " + child2.GetComponent<PlayCard>().unitName);
-        Debug.Log(round -1 + " " + child2.GetComponent<PlayCard>().unitStrength.ToString());
-        Debug.Log(round -1 + " " + child2.GetComponent<PlayCard>().unitValue.ToString());
-        Debug.Log(round -1 + " " + child2.GetComponent<PlayCard>().unitPlayer);
-        Debug.Log(child3);
-        Debug.Log(round -1 + " " + child3.GetComponent<PlayCard>().unitName);
-        Debug.Log(round -1 + " " + child3.GetComponent<PlayCard>().unitStrength.ToString());
-        Debug.Log(round -1 + " " + child3.GetComponent<PlayCard>().unitValue.ToString());
-        Debug.Log(round -1 + " " + child3.GetComponent<PlayCard>().unitPlayer);
-        Debug.Log(child4);
-        Debug.Log(round -1 + " " + child4.GetComponent<PlayCard>().unitName);
-        Debug.Log(round -1 + " " + child4.GetComponent<PlayCard>().unitStrength.ToString());
-        Debug.Log(round -1 + " " + child4.GetComponent<PlayCard>().unitValue.ToString());
-        Debug.Log(round -1 + " " + child4.GetComponent<PlayCard>().unitPlayer);
-    }
-
     void CalculateRoundWinner()
     {
         if (GetChildCount() == 4)
         {
+            //Get current GameObjects from the desk and store them in a List
             GameObject child1 = currentCard.transform.GetChild(0).gameObject;
             GameObject child2 = secondCard.transform.GetChild(0).gameObject;
             GameObject child3 = thirdCard.transform.GetChild(0).gameObject;
             GameObject child4 = fourthCard.transform.GetChild(0).gameObject;
-            Test(child1, child2, child3, child4);
             dropzonecards.Add(child1);
             dropzonecards.Add(child2);
             dropzonecards.Add(child3);
             dropzonecards.Add(child4);
-            string firstcard = child1.GetComponent<PlayCard>().unitName.Substring(0, 1);
+            //Check which is the first card
+            string firstcard = null;
+            if (lastPlayer.ActorNumber == 1)
+            {
+                firstcard = child1.GetComponent<PlayCard>().unitName.Substring(0, 1);
+            }
+            if (lastPlayer.ActorNumber == 2)
+            {
+                firstcard = child2.GetComponent<PlayCard>().unitName.Substring(0, 1);
+            }
+            if (lastPlayer.ActorNumber == 3)
+            {
+                firstcard = child3.GetComponent<PlayCard>().unitName.Substring(0, 1);
+            }
+            if (lastPlayer.ActorNumber == 4)
+            {
+                firstcard = child4.GetComponent<PlayCard>().unitName.Substring(0, 1);
+            }
+            //Calculate winner
             foreach (GameObject card in dropzonecards)
             {
                 if (card.gameObject.name.Contains(trumpfUnit))
