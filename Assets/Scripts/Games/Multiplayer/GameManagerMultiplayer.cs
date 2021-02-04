@@ -15,6 +15,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     public Player activePlayer;
     public Player startPlayer;
     public Player lastPlayer;
+    public AudioSource youShouldLaySound;
 
     #endregion
 
@@ -145,7 +146,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
 
     public void PlayerTurn(Player p)
     {
-        activePlayer = null;
+        activePlayer = p;
         if (GetChildCount() == 4)
         {
             round++;
@@ -523,6 +524,14 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         trumpfUnit = null;
         round = 0;
         cardCount = 0;
+    }
+
+    public void OnClick_YouShouldLay()
+    {
+        if (activePlayer.IsLocal)
+        {
+            youShouldLaySound.Play();
+        }
     }
 
     private void OnEnable()

@@ -18,6 +18,7 @@ public class NextCardMultiplayer : MonoBehaviour
     public GameObject SecondCard;
     public GameObject ThirdCard;
     public GameObject FourthCard;
+    public AudioSource cardLaySound;
 
     #endregion
 
@@ -338,6 +339,7 @@ public class NextCardMultiplayer : MonoBehaviour
             {
                 if (card.name == cardName)
                 {
+                    cardLaySound.Play();
                     card.gameObject.GetComponent<PlayCard>().SetPlayer(_playerString);
                     GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
                     playerCard.layer = 13;
