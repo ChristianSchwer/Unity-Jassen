@@ -77,11 +77,13 @@ public class PlayerListingsMenu : MonoBehaviourPunCallbacks
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
+        //Update Room Properties
         AddPlayerListing(newPlayer);
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
+        //Update Room Properties
         int index = _listings.FindIndex(x => x.Player == otherPlayer);
         if (index != -1)
         {

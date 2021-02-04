@@ -8,14 +8,27 @@ using UnityEngine.UI;
 public class RoomListing : MonoBehaviour
 {
     [SerializeField]
-    private Text _text;
+    private Text roomMaxPlayers;
+    [SerializeField]
+    private Text roomName;
 
     public RoomInfo RoomInfo { get; private set; }
 
     public void SetRoomInfo(RoomInfo roomInfo)
     {
         RoomInfo = roomInfo;
-        _text.text = roomInfo.MaxPlayers + ", " + roomInfo.Name;
+        roomMaxPlayers.text = RoomInfo.PlayerCount + "/" + RoomInfo.MaxPlayers;
+        roomName.text = RoomInfo.Name;
+    }
+
+    public void RemoveFromList()
+    {
+        Destroy(this.gameObject);
+    }
+
+    public void AddToList(RoomInfo info)
+    {
+        SetRoomInfo(info);
     }
 
     public void OnClick_Button()

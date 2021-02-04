@@ -13,8 +13,9 @@ public class RoomListingsMenu : MonoBehaviourPunCallbacks
     [SerializeField]
     private RoomListing _roomListing;
 
-    private List<RoomListing> _listings = new List<RoomListing>();
     private RoomsCanvases _roomsCanvases;
+
+    Dictionary<string, RoomListing> roomListing = new Dictionary<string, RoomListing>();
 
     #endregion
 
@@ -29,36 +30,32 @@ public class RoomListingsMenu : MonoBehaviourPunCallbacks
     {
         _roomsCanvases.CurrentRoomCanvas.Show();
         _content.DestroyChildren();
-        _listings.Clear();
     }
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
         foreach (RoomInfo info in roomList)
         {
-            //Removed from rooms list.
-            if (info.RemovedFromList)
+            if (roomListing.ContainsKey(info.Name))
             {
-                int index = _listings.FindIndex(x => x.RoomInfo.Name == info.Name);
-                if (index != -1)
+                if (info.RemovedFromList)
                 {
-                    Destroy(_listings[index].gameObject);
-                    _listings.RemoveAt(index);
+                    //Remove from list.
+                    roomListing[info.Name].RemoveFromList();
+                    roomListing.Remove(info.Name);
+                }
+                else
+                {
+                    //Update list
+                    roomListing[info.Name].SetRoomInfo(info);
                 }
             }
-            //Added to rooms list.
             else
             {
-                int index = _listings.FindIndex(x => x.RoomInfo.Name == info.Name);
-                if (index == -1)
-                {
-                    RoomListing listing = Instantiate(_roomListing, _content);
-                    if (listing != null)
-                    {
-                        listing.SetRoomInfo(info);
-                        _listings.Add(listing);
-                    }
-                }
+                //Added to list.
+                roomListing[info.Name] = Instantiate(_roomListing, _content);
+                roomListing[info.Name].gameObject.SetActive(true);
+                roomListing[info.Name].AddToList(info);
             }
         }
     }
