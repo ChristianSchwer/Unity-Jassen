@@ -60,18 +60,29 @@ public class ShuffleCards : MonoBehaviourPun
 
     RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
     private const byte CARDS_SHUFFLE_EVENT = 1;
-    private const byte SEND_PLAYERHAND_EVENT = 7;
+    private const byte SEND_PLAYER1HAND_EVENT = 18;
+    private const byte SEND_PLAYER2HAND_EVENT = 19;
+    private const byte SEND_PLAYER3HAND_EVENT = 20;
+    private const byte SEND_PLAYER4HAND_EVENT = 21;
+    private const byte SEND_PLAYER5HAND_EVENT = 22;
+    private const byte SEND_PLAYER6HAND_EVENT = 23;
 
     List<string> cardsName = new List<string>();
     public List<GameObject> cards = new List<GameObject>();
     List<string> player1 = new List<string>();
     List<string> player2 = new List<string>();
     List<string> player3 = new List<string>();
-    List<string> player4 = new List<string>();    
+    List<string> player4 = new List<string>(); 
+    List<string> player5 = new List<string>(); 
+    List<string> player6 = new List<string>(); 
     List<GameObject> playerUnsorted1 = new List<GameObject>();
     List<GameObject> playerUnsorted2 = new List<GameObject>();
     List<GameObject> playerUnsorted3 = new List<GameObject>();
     List<GameObject> playerUnsorted4 = new List<GameObject>();
+    List<GameObject> playerUnsorted5 = new List<GameObject>();
+    List<GameObject> playerUnsorted6 = new List<GameObject>();
+
+    private int playerCount;
 
     PlayCard currentUnit;
 
@@ -80,7 +91,7 @@ public class ShuffleCards : MonoBehaviourPun
 
     #region Public Methods
 
-    public void CardShuffle()
+    public void CardShuffle(int playerCount)
     {
         cardsName.Clear();
         AddCardsName();
@@ -92,7 +103,7 @@ public class ShuffleCards : MonoBehaviourPun
             cardsName[i] = cardsName[j];
             cardsName[j] = temp;
         }
-        object[] datas = new object[] { cardsName.ToArray() };
+        object[] datas = new object[] { cardsName.ToArray(), playerCount };
         PhotonNetwork.RaiseEvent(CARDS_SHUFFLE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
     }
 
@@ -310,64 +321,247 @@ public class ShuffleCards : MonoBehaviourPun
 
     private void GiveCardsToPlayer(Player p)
     {
-        if (gameManagerMultiplayer.startPlayer.ActorNumber == p.ActorNumber)
+        if (playerCount == 2)
         {
-            for (int i = 0; i <= 8; i++)
+            GiveCardsToFirstPlayer(p, 4);
+            GiveCardsToSecondPlayer(p, 4);
+        }
+        if (playerCount == 3)
+        {
+            GiveCardsToFirstPlayer(p, 4);
+            GiveCardsToSecondPlayer(p, 4);
+            GiveCardsToThirdPlayer(p, 4);
+        }
+        if (playerCount == 4)
+        {
+            GiveCardsToFirstPlayer(p, 4);
+            GiveCardsToSecondPlayer(p, 4);
+            GiveCardsToThirdPlayer(p, 4);
+            GiveCardsToFourthPlayer(p, 4);
+        }
+        if (playerCount == 5)
+        {
+            GiveCardsToFirstPlayer(p, 6);
+            GiveCardsToSecondPlayer(p, 6);
+            GiveCardsToThirdPlayer(p, 6);
+            GiveCardsToFourthPlayer(p, 6);
+            GiveCardsToFifthPlayer(p, 6);
+        }
+        if (playerCount == 6)
+        {
+            GiveCardsToFirstPlayer(p, 6);
+            GiveCardsToSecondPlayer(p, 6);
+            GiveCardsToThirdPlayer(p, 6);
+            GiveCardsToFourthPlayer(p, 6);
+            GiveCardsToFifthPlayer(p, 6);
+            GiveCardsToSixthPlayer(p, 6);
+        }
+    }
+
+    private void GiveCardsToFirstPlayer(Player p, int players)
+    {
+        if (players == 4)
+        {
+            if (gameManagerMultiplayer.startPlayer.ActorNumber == p.ActorNumber)
             {
-                playerUnsorted1.Add(cards[i]);
-            }
-            playerUnsorted1.Sort(CompareList);
-            foreach (GameObject card in playerUnsorted1)
-            {
-                GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
-                playerCard.transform.SetParent(playerHand.transform, false);
-                player1.Add(card.name);
+                for (int i = 0; i <= 8; i++)
+                {
+                    playerUnsorted1.Add(cards[i]);
+                }
+                playerUnsorted1.Sort(CompareList);
+                foreach (GameObject card in playerUnsorted1)
+                {
+                    GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
+                    playerCard.transform.SetParent(playerHand.transform, false);
+                    player1.Add(card.name);
+                }
             }
         }
-        if (gameManagerMultiplayer.startPlayer.GetNext().ActorNumber == p.ActorNumber)
+        if (players == 6)
         {
-            for (int i = 9; i <= 17; i++)
+            if (gameManagerMultiplayer.startPlayer.ActorNumber == p.ActorNumber)
             {
-                playerUnsorted2.Add(cards[i]);
-            }
-            playerUnsorted2.Sort(CompareList);
-            foreach (GameObject card in playerUnsorted2)
-            {
-                GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
-                playerCard.transform.SetParent(playerHand.transform, false);
-                player2.Add(card.name);
+                for (int i = 0; i <= 5; i++)
+                {
+                    playerUnsorted1.Add(cards[i]);
+                }
+                playerUnsorted1.Sort(CompareList);
+                foreach (GameObject card in playerUnsorted1)
+                {
+                    GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
+                    playerCard.transform.SetParent(playerHand.transform, false);
+                    player1.Add(card.name);
+                }
             }
         }
-        if (gameManagerMultiplayer.startPlayer.GetNext().GetNext().ActorNumber == p.ActorNumber)
+        object[] data = new object[] { player1.ToArray() };
+        PhotonNetwork.RaiseEvent(SEND_PLAYER1HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
+    }
+
+    private void GiveCardsToSecondPlayer(Player p, int players)
+    {
+        if (players == 4)
         {
-            for (int i = 18; i <= 26; i++)
+            if (gameManagerMultiplayer.startPlayer.GetNext().ActorNumber == p.ActorNumber)
             {
-                playerUnsorted3.Add(cards[i]);
-            }
-            playerUnsorted3.Sort(CompareList);
-            foreach (GameObject card in playerUnsorted3)
-            {
-                GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
-                playerCard.transform.SetParent(playerHand.transform, false);
-                player3.Add(card.name);
+                for (int i = 9; i <= 17; i++)
+                {
+                    playerUnsorted2.Add(cards[i]);
+                }
+                playerUnsorted2.Sort(CompareList);
+                foreach (GameObject card in playerUnsorted2)
+                {
+                    GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
+                    playerCard.transform.SetParent(playerHand.transform, false);
+                    player2.Add(card.name);
+                }
             }
         }
-        if (gameManagerMultiplayer.startPlayer.GetNext().GetNext().GetNext().ActorNumber == p.ActorNumber)
+        if (players == 6)
         {
-            for (int i = 27; i <= 35; i++)
+            if (gameManagerMultiplayer.startPlayer.GetNext().ActorNumber == p.ActorNumber)
             {
-                playerUnsorted4.Add(cards[i]);
-            }
-            playerUnsorted4.Sort(CompareList);
-            foreach (GameObject card in playerUnsorted4)
-            {
-                GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
-                playerCard.transform.SetParent(playerHand.transform, false);
-                player4.Add(card.name);
+                for (int i = 6; i <= 11; i++)
+                {
+                    playerUnsorted2.Add(cards[i]);
+                }
+                playerUnsorted2.Sort(CompareList);
+                foreach (GameObject card in playerUnsorted2)
+                {
+                    GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
+                    playerCard.transform.SetParent(playerHand.transform, false);
+                    player2.Add(card.name);
+                }
             }
         }
-        object[] data = new object[] { player1.ToArray(), player2.ToArray(), player3.ToArray(), player4.ToArray() };
-        PhotonNetwork.RaiseEvent(SEND_PLAYERHAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
+        object[] data = new object[] { player2.ToArray() };
+        PhotonNetwork.RaiseEvent(SEND_PLAYER2HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
+    }
+
+    private void GiveCardsToThirdPlayer(Player p, int players)
+    {
+        if (players == 4)
+        {
+            if (gameManagerMultiplayer.startPlayer.GetNext().GetNext().ActorNumber == p.ActorNumber)
+            {
+                for (int i = 18; i <= 26; i++)
+                {
+                    playerUnsorted3.Add(cards[i]);
+                }
+                playerUnsorted3.Sort(CompareList);
+                foreach (GameObject card in playerUnsorted3)
+                {
+                    GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
+                    playerCard.transform.SetParent(playerHand.transform, false);
+                    player3.Add(card.name);
+                }
+            }
+        }
+        if (players == 6)
+        {
+            if (gameManagerMultiplayer.startPlayer.GetNext().GetNext().ActorNumber == p.ActorNumber)
+            {
+                for (int i = 12; i <= 17; i++)
+                {
+                    playerUnsorted3.Add(cards[i]);
+                }
+                playerUnsorted3.Sort(CompareList);
+                foreach (GameObject card in playerUnsorted3)
+                {
+                    GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
+                    playerCard.transform.SetParent(playerHand.transform, false);
+                    player3.Add(card.name);
+                }
+            }
+        }
+        object[] data = new object[] { player3.ToArray() };
+        PhotonNetwork.RaiseEvent(SEND_PLAYER3HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
+    }
+
+    private void GiveCardsToFourthPlayer(Player p, int players)
+    {
+        if (players == 4)
+        {
+            if (gameManagerMultiplayer.startPlayer.GetNext().GetNext().GetNext().ActorNumber == p.ActorNumber)
+            {
+                for (int i = 27; i <= 35; i++)
+                {
+                    playerUnsorted4.Add(cards[i]);
+                }
+                playerUnsorted4.Sort(CompareList);
+                foreach (GameObject card in playerUnsorted4)
+                {
+                    GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
+                    playerCard.transform.SetParent(playerHand.transform, false);
+                    player4.Add(card.name);
+                }
+            }
+        }
+        if (players == 6)
+        {
+            if (gameManagerMultiplayer.startPlayer.GetNext().GetNext().GetNext().ActorNumber == p.ActorNumber)
+            {
+                for (int i = 18; i <= 23; i++)
+                {
+                    playerUnsorted4.Add(cards[i]);
+                }
+                playerUnsorted4.Sort(CompareList);
+                foreach (GameObject card in playerUnsorted4)
+                {
+                    GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
+                    playerCard.transform.SetParent(playerHand.transform, false);
+                    player4.Add(card.name);
+                }
+            }
+        }
+        object[] data = new object[] { player4.ToArray() };
+        PhotonNetwork.RaiseEvent(SEND_PLAYER4HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
+    }
+
+    private void GiveCardsToFifthPlayer(Player p, int players)
+    {
+        if (players == 6)
+        {
+            if (gameManagerMultiplayer.startPlayer.GetNext().GetNext().GetNext().GetNext().ActorNumber == p.ActorNumber)
+            {
+                for (int i = 24; i <= 29; i++)
+                {
+                    playerUnsorted5.Add(cards[i]);
+                }
+                playerUnsorted5.Sort(CompareList);
+                foreach (GameObject card in playerUnsorted5)
+                {
+                    GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
+                    playerCard.transform.SetParent(playerHand.transform, false);
+                    player5.Add(card.name);
+                }
+            }
+        }
+        object[] data = new object[] { player5.ToArray() };
+        PhotonNetwork.RaiseEvent(SEND_PLAYER5HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
+    }
+
+    private void GiveCardsToSixthPlayer(Player p, int players)
+    {
+        if (players == 6)
+        {
+            if (gameManagerMultiplayer.startPlayer.GetNext().GetNext().GetNext().GetNext().GetNext().ActorNumber == p.ActorNumber)
+            {
+                for (int i = 30; i <= 35; i++)
+                {
+                    playerUnsorted6.Add(cards[i]);
+                }
+                playerUnsorted6.Sort(CompareList);
+                foreach (GameObject card in playerUnsorted6)
+                {
+                    GameObject playerCard = Instantiate(card, new Vector3(0, 0, 0), Quaternion.identity);
+                    playerCard.transform.SetParent(playerHand.transform, false);
+                    player6.Add(card.name);
+                }
+            }
+        }
+        object[] data = new object[] { player6.ToArray() };
+        PhotonNetwork.RaiseEvent(SEND_PLAYER6HAND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
     }
 
     private static int CompareList(GameObject card1, GameObject card2)
@@ -419,12 +613,17 @@ public class ShuffleCards : MonoBehaviourPun
         player2.Clear();
         player3.Clear();
         player4.Clear();
+        player5.Clear();
+        player6.Clear();
         playerUnsorted1.Clear();
         playerUnsorted2.Clear();
         playerUnsorted3.Clear();
         playerUnsorted4.Clear();
+        playerUnsorted5.Clear();
+        playerUnsorted6.Clear();
         cards.Clear();
         cardsName.Clear();
+        playerCount = 0;
 }
 
     #endregion
@@ -448,10 +647,12 @@ public class ShuffleCards : MonoBehaviourPun
             cardsName.Clear();
             object[] datas = (object[])obj.CustomData;
             Array array = (Array)datas[0];
+            int players = (int)datas[1];
             foreach (string s in array)
             {
                 cardsName.Add(s);
             }
+            playerCount = players;
             AddCards();
             ResetCards(cards);
             gameManagerMultiplayer.GetTrumpf(cards);

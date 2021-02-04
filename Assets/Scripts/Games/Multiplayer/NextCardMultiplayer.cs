@@ -18,7 +18,11 @@ public class NextCardMultiplayer : MonoBehaviour
     public GameObject SecondCard;
     public GameObject ThirdCard;
     public GameObject FourthCard;
+    public GameObject FifthCard;
+    public GameObject SixthCard;
     public AudioSource cardLaySound;
+
+    public Player currentPlayer;
 
     #endregion
 
@@ -42,18 +46,23 @@ public class NextCardMultiplayer : MonoBehaviour
     List<string> player2 = new List<string>();
     List<string> player3 = new List<string>();
     List<string> player4 = new List<string>();
+    List<string> player5 = new List<string>();
+    List<string> player6 = new List<string>();
     List<GameObject> cards = new List<GameObject>();
 
     RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
     private const byte CURRENT_CARDS_EVENT = 4;
     private const byte SET_AKTIVE_EVENT = 5;
     private const byte CURRENT_MOVE_EVENT = 6;
-    private const byte SEND_PLAYERHAND_EVENT = 7;
     private const byte SEND_TRUMPF_EVENT = 11;
     private const byte SEND_FIRSTCARD_EVENT = 12;
     private const byte SEND_PLAYERNUMBER_EVENT = 15;
-
-    Player currentPlayer;
+    private const byte SEND_PLAYER1HAND_EVENT = 18;
+    private const byte SEND_PLAYER2HAND_EVENT = 19;
+    private const byte SEND_PLAYER3HAND_EVENT = 20;
+    private const byte SEND_PLAYER4HAND_EVENT = 21;
+    private const byte SEND_PLAYER5HAND_EVENT = 22;
+    private const byte SEND_PLAYER6HAND_EVENT = 23;
 
     #endregion
 
@@ -143,6 +152,14 @@ public class NextCardMultiplayer : MonoBehaviour
                                 {
                                     check = CheckList(player4, firstLetter, trumpf);
                                 }
+                                if (playerString == "player5")
+                                {
+                                    check = CheckList(player5, firstLetter, trumpf);
+                                }
+                                if (playerString == "player6")
+                                {
+                                    check = CheckList(player6, firstLetter, trumpf);
+                                }
                                 if (!check)
                                 {
                                     if (result.gameObject.name.Contains("E") || result.gameObject.name.Contains("B") || result.gameObject.name.Contains("H") || result.gameObject.name.Contains("S"))
@@ -195,8 +212,16 @@ public class NextCardMultiplayer : MonoBehaviour
                     {
                         playerString = "player" + currentNumber.ToString();
                     }
+                    if(currentNumber == 5)
+                    {
+                        playerString = "player" + currentNumber.ToString();
+                    }
+                    if(currentNumber == 6)
+                    {
+                        playerString = "player" + currentNumber.ToString();
+                    }
                     currentNumber++;
-                    if (currentNumber == 5)
+                    if (currentNumber == gameManagerMultiplayer.players + 1)
                     {
                         currentNumber = 1;
                     }
@@ -242,11 +267,18 @@ public class NextCardMultiplayer : MonoBehaviour
         {
             player4.Remove(i.gameObject.name.TrimEnd(removeWord));
         }
+        if (player == "player5")
+        {
+            player5.Remove(i.gameObject.name.TrimEnd(removeWord));
+        }
+        if (player == "player6")
+        {
+            player6.Remove(i.gameObject.name.TrimEnd(removeWord));
+        }
         playerString = "None";
         Destroy(i.gameObject);
         object[] datas = new object[] { true, currentPlayer.GetNext() };
         PhotonNetwork.RaiseEvent(SET_AKTIVE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
-
     }
 
     bool CheckList(List<string> cards, string Letter, string currentTrumpf)
@@ -289,6 +321,8 @@ public class NextCardMultiplayer : MonoBehaviour
         player2.Clear();
         player3.Clear();
         player4.Clear();
+        player5.Clear();
+        player6.Clear();
         cards.Clear();
         playerString = "None";
         firstLetter = "None";
@@ -363,12 +397,51 @@ public class NextCardMultiplayer : MonoBehaviour
                             {
                                 playerCard.transform.SetParent(FourthCard.transform, false);
                             }
+                            if (_playerString == "player5")
+                            {
+                                playerCard.transform.SetParent(FifthCard.transform, false);
+                            }
+                            if (_playerString == "player6")
+                            {
+                                playerCard.transform.SetParent(SixthCard.transform, false);
+                            }
                         }
                         if (player.IsLocal && player == gameManagerMultiplayer.startPlayer.GetNext())
                         {
-                            if (_playerString == "player1")
+                            if (gameManagerMultiplayer.players == 2)
                             {
-                                playerCard.transform.SetParent(FourthCard.transform, false);
+                                if (_playerString == "player1")
+                                {
+                                    playerCard.transform.SetParent(SecondCard.transform, false);
+                                }
+                            }
+                            if (gameManagerMultiplayer.players == 3)
+                            {
+                                if (_playerString == "player1")
+                                {
+                                    playerCard.transform.SetParent(ThirdCard.transform, false);
+                                }
+                            }
+                            if (gameManagerMultiplayer.players == 4)
+                            {
+                                if (_playerString == "player1")
+                                {
+                                    playerCard.transform.SetParent(FourthCard.transform, false);
+                                }
+                            }
+                            if (gameManagerMultiplayer.players == 5)
+                            {
+                                if (_playerString == "player1")
+                                {
+                                    playerCard.transform.SetParent(FifthCard.transform, false);
+                                }
+                            }
+                            if (gameManagerMultiplayer.players == 6)
+                            {
+                                if (_playerString == "player1")
+                                {
+                                    playerCard.transform.SetParent(SixthCard.transform, false);
+                                }
                             }
                             if (_playerString == "player2")
                             {
@@ -381,44 +454,257 @@ public class NextCardMultiplayer : MonoBehaviour
                             if (_playerString == "player4")
                             {
                                 playerCard.transform.SetParent(ThirdCard.transform, false);
+                            }
+                            if (_playerString == "player5")
+                            {
+                                playerCard.transform.SetParent(FourthCard.transform, false);
+                            }
+                            if (_playerString == "player6")
+                            {
+                                playerCard.transform.SetParent(FifthCard.transform, false);
                             }
                         }
                         if (player.IsLocal && player == gameManagerMultiplayer.startPlayer.GetNext().GetNext())
                         {
-                            if (_playerString == "player1")
+                            if (gameManagerMultiplayer.players == 3)
                             {
-                                playerCard.transform.SetParent(ThirdCard.transform, false);
+                                if (_playerString == "player1")
+                                {
+                                    playerCard.transform.SetParent(SecondCard.transform, false);
+                                }
+                                if (_playerString == "player2")
+                                {
+                                    playerCard.transform.SetParent(ThirdCard.transform, false);
+                                }
+                                if (_playerString == "player3")
+                                {
+                                    playerCard.transform.SetParent(CurrentCard.transform, false);
+                                }
                             }
-                            if (_playerString == "player2")
+                            if (gameManagerMultiplayer.players == 4)
                             {
-                                playerCard.transform.SetParent(FourthCard.transform, false);
+                                if (_playerString == "player1")
+                                {
+                                    playerCard.transform.SetParent(ThirdCard.transform, false);
+                                }
+                                if (_playerString == "player2")
+                                {
+                                    playerCard.transform.SetParent(FourthCard.transform, false);
+                                }
+                                if (_playerString == "player3")
+                                {
+                                    playerCard.transform.SetParent(CurrentCard.transform, false);
+                                }
+                                if (_playerString == "player4")
+                                {
+                                    playerCard.transform.SetParent(SecondCard.transform, false);
+                                }
                             }
-                            if (_playerString == "player3")
+                            if (gameManagerMultiplayer.players == 5)
                             {
-                                playerCard.transform.SetParent(CurrentCard.transform, false);
+                                if (_playerString == "player1")
+                                {
+                                    playerCard.transform.SetParent(FourthCard.transform, false);
+                                }
+                                if (_playerString == "player2")
+                                {
+                                    playerCard.transform.SetParent(FifthCard.transform, false);
+                                }
+                                if (_playerString == "player3")
+                                {
+                                    playerCard.transform.SetParent(CurrentCard.transform, false);
+                                }
+                                if (_playerString == "player4")
+                                {
+                                    playerCard.transform.SetParent(SecondCard.transform, false);
+                                }
+                                if (_playerString == "player5")
+                                {
+                                    playerCard.transform.SetParent(ThirdCard.transform, false);
+                                }
                             }
-                            if (_playerString == "player4")
+                            if (gameManagerMultiplayer.players == 6)
                             {
-                                playerCard.transform.SetParent(SecondCard.transform, false);
+                                if (_playerString == "player1")
+                                {
+                                    playerCard.transform.SetParent(FifthCard.transform, false);
+                                }
+                                if (_playerString == "player2")
+                                {
+                                    playerCard.transform.SetParent(SixthCard.transform, false);
+                                }
+                                if (_playerString == "player3")
+                                {
+                                    playerCard.transform.SetParent(CurrentCard.transform, false);
+                                }
+                                if (_playerString == "player4")
+                                {
+                                    playerCard.transform.SetParent(SecondCard.transform, false);
+                                }
+                                if (_playerString == "player5")
+                                {
+                                    playerCard.transform.SetParent(ThirdCard.transform, false);
+                                }
+                                if (_playerString == "player6")
+                                {
+                                    playerCard.transform.SetParent(FourthCard.transform, false);
+                                }
                             }
                         }
                         if (player.IsLocal && player == gameManagerMultiplayer.startPlayer.GetNext().GetNext().GetNext())
                         {
-                            if (_playerString == "player1")
+                            if (gameManagerMultiplayer.players == 4)
                             {
-                                playerCard.transform.SetParent(SecondCard.transform, false);
+                                if (_playerString == "player1")
+                                {
+                                    playerCard.transform.SetParent(SecondCard.transform, false);
+                                }
+                                if (_playerString == "player2")
+                                {
+                                    playerCard.transform.SetParent(ThirdCard.transform, false);
+                                }
+                                if (_playerString == "player3")
+                                {
+                                    playerCard.transform.SetParent(FourthCard.transform, false);
+                                }
+                                if (_playerString == "player4")
+                                {
+                                    playerCard.transform.SetParent(CurrentCard.transform, false);
+                                }
                             }
-                            if (_playerString == "player2")
+                            if (gameManagerMultiplayer.players == 5)
                             {
-                                playerCard.transform.SetParent(ThirdCard.transform, false);
+                                if (_playerString == "player1")
+                                {
+                                    playerCard.transform.SetParent(ThirdCard.transform, false);
+                                }
+                                if (_playerString == "player2")
+                                {
+                                    playerCard.transform.SetParent(FourthCard.transform, false);
+                                }
+                                if (_playerString == "player3")
+                                {
+                                    playerCard.transform.SetParent(FifthCard.transform, false);
+                                }
+                                if (_playerString == "player4")
+                                {
+                                    playerCard.transform.SetParent(CurrentCard.transform, false);
+                                }
+                                if (_playerString == "player4")
+                                {
+                                    playerCard.transform.SetParent(SecondCard.transform, false);
+                                }
                             }
-                            if (_playerString == "player3")
+                            if (gameManagerMultiplayer.players == 6)
                             {
-                                playerCard.transform.SetParent(FourthCard.transform, false);
+                                if (_playerString == "player1")
+                                {
+                                    playerCard.transform.SetParent(FourthCard.transform, false);
+                                }
+                                if (_playerString == "player2")
+                                {
+                                    playerCard.transform.SetParent(FifthCard.transform, false);
+                                }
+                                if (_playerString == "player3")
+                                {
+                                    playerCard.transform.SetParent(SixthCard.transform, false);
+                                }
+                                if (_playerString == "player4")
+                                {
+                                    playerCard.transform.SetParent(CurrentCard.transform, false);
+                                }
+                                if (_playerString == "player5")
+                                {
+                                    playerCard.transform.SetParent(SecondCard.transform, false);
+                                }
+                                if (_playerString == "player6")
+                                {
+                                    playerCard.transform.SetParent(ThirdCard.transform, false);
+                                }
                             }
-                            if (_playerString == "player4")
+
+                        }
+                        if (player.IsLocal && player == gameManagerMultiplayer.startPlayer.GetNext().GetNext().GetNext().GetNext())
+                        {
+                            if (gameManagerMultiplayer.players == 5)
                             {
-                                playerCard.transform.SetParent(CurrentCard.transform, false);
+                                if (_playerString == "player1")
+                                {
+                                    playerCard.transform.SetParent(SecondCard.transform, false);
+                                }
+                                if (_playerString == "player2")
+                                {
+                                    playerCard.transform.SetParent(ThirdCard.transform, false);
+                                }
+                                if (_playerString == "player3")
+                                {
+                                    playerCard.transform.SetParent(FourthCard.transform, false);
+                                }
+                                if (_playerString == "player4")
+                                {
+                                    playerCard.transform.SetParent(FifthCard.transform, false);
+                                }
+                                if (_playerString == "player4")
+                                {
+                                    playerCard.transform.SetParent(CurrentCard.transform, false);
+                                }
+                            }
+                            if (gameManagerMultiplayer.players == 6)
+                            {
+                                if (_playerString == "player1")
+                                {
+                                    playerCard.transform.SetParent(ThirdCard.transform, false);
+                                }
+                                if (_playerString == "player2")
+                                {
+                                    playerCard.transform.SetParent(FourthCard.transform, false);
+                                }
+                                if (_playerString == "player3")
+                                {
+                                    playerCard.transform.SetParent(FifthCard.transform, false);
+                                }
+                                if (_playerString == "player4")
+                                {
+                                    playerCard.transform.SetParent(SixthCard.transform, false);
+                                }
+                                if (_playerString == "player5")
+                                {
+                                    playerCard.transform.SetParent(CurrentCard.transform, false);
+                                }
+                                if (_playerString == "player6")
+                                {
+                                    playerCard.transform.SetParent(SecondCard.transform, false);
+                                }
+                            }
+                        }
+                        if (player.IsLocal && player == gameManagerMultiplayer.startPlayer.GetNext().GetNext().GetNext().GetNext().GetNext())
+                        {
+                            if (gameManagerMultiplayer.players == 6)
+                            {
+                                if (_playerString == "player1")
+                                {
+                                    playerCard.transform.SetParent(SecondCard.transform, false);
+                                }
+                                if (_playerString == "player2")
+                                {
+                                    playerCard.transform.SetParent(ThirdCard.transform, false);
+                                }
+                                if (_playerString == "player3")
+                                {
+                                    playerCard.transform.SetParent(FourthCard.transform, false);
+                                }
+                                if (_playerString == "player4")
+                                {
+                                    playerCard.transform.SetParent(FifthCard.transform, false);
+                                }
+                                if (_playerString == "player5")
+                                {
+                                    playerCard.transform.SetParent(SixthCard.transform, false);
+                                }
+                                if (_playerString == "player6")
+                                {
+                                    playerCard.transform.SetParent(CurrentCard.transform, false);
+                                }
                             }
                         }
                     }
@@ -439,28 +725,58 @@ public class NextCardMultiplayer : MonoBehaviour
             int playerMove = (int)datas[0];
             move = playerMove;
         }
-        if (obj.Code == SEND_PLAYERHAND_EVENT)
+        if (obj.Code == SEND_PLAYER1HAND_EVENT)
         {
             object[] datas = (object[])obj.CustomData;
             Array p1 = (Array)datas[0];
-            Array p2 = (Array)datas[1];
-            Array p3 = (Array)datas[2];
-            Array p4 = (Array)datas[3];
             foreach (string cardname in p1)
             {
                 player1.Add(cardname);
             }
+        }
+        if (obj.Code == SEND_PLAYER2HAND_EVENT)
+        {
+            object[] datas = (object[])obj.CustomData;
+            Array p2 = (Array)datas[0];
             foreach (string cardname in p2)
             {
                 player2.Add(cardname);
             }
+        }
+        if (obj.Code == SEND_PLAYER3HAND_EVENT)
+        {
+            object[] datas = (object[])obj.CustomData;
+            Array p3 = (Array)datas[0];
             foreach (string cardname in p3)
             {
                 player3.Add(cardname);
             }
+        }
+        if (obj.Code == SEND_PLAYER4HAND_EVENT)
+        {
+            object[] datas = (object[])obj.CustomData;
+            Array p4 = (Array)datas[0];
             foreach (string cardname in p4)
             {
                 player4.Add(cardname);
+            }
+        }
+        if (obj.Code == SEND_PLAYER5HAND_EVENT)
+        {
+            object[] datas = (object[])obj.CustomData;
+            Array p5 = (Array)datas[0];
+            foreach (string cardname in p5)
+            {
+                player5.Add(cardname);
+            }
+        }
+        if (obj.Code == SEND_PLAYER6HAND_EVENT)
+        {
+            object[] datas = (object[])obj.CustomData;
+            Array p6 = (Array)datas[0];
+            foreach (string cardname in p6)
+            {
+                player6.Add(cardname);
             }
         }
         if (obj.Code == SEND_TRUMPF_EVENT)
