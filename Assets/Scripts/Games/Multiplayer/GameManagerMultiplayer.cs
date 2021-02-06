@@ -32,10 +32,10 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     private Text Score3;
     [SerializeField]
     private Text Score4;
-    //[SerializeField]
-    //private Text Score5;
-    //[SerializeField]
-    //private Text Score6;
+    [SerializeField]
+    private Text Score5;
+    [SerializeField]
+    private Text Score6;
     [SerializeField]
     private Text Player1;
     [SerializeField]
@@ -44,10 +44,10 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     private Text Player3;
     [SerializeField]
     private Text Player4;
-    //[SerializeField]
-    //private Text Player5;
-    //[SerializeField]
-    //private Text Player6;
+    [SerializeField]
+    private Text Player5;
+    [SerializeField]
+    private Text Player6;
     [SerializeField]
     private Text Round;
 
@@ -65,10 +65,10 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     private GameObject thirdCard;
     [SerializeField]
     private GameObject fourthCard;
-    //[SerializeField]
-    //private GameObject fifthCard;
-    //[SerializeField]
-    //private GameObject sixthCard;
+    [SerializeField]
+    private GameObject fifthCard;
+    [SerializeField]
+    private GameObject sixthCard;
     [SerializeField]
     private GameObject yard;
     [SerializeField]
@@ -109,6 +109,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     private const byte CURRENT_PLAYER_EVENT = 2;
     private const byte TRUMPF_EVENT = 3;
     private const byte SET_AKTIVE_EVENT = 5;
+    private const byte SET_PLAYERCOUNT_EVENT = 7;
     private const byte RESET_VARIABELS_EVENT = 9;
     private const byte SET_STARTPLAYER_EVENT = 10;
     private const byte SEND_SCORE_EVENT= 13;
@@ -157,6 +158,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
                     Player2.text = player.GetNext().NickName;
                     Player3.text = "";
                     Player4.text = "";
+                    Player5.text = "";
+                    Player6.text = "";
                 }
                 if (players == 3)
                 {
@@ -164,6 +167,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
                     Player2.text = player.GetNext().NickName;
                     Player3.text = player.GetNext().GetNext().NickName;
                     Player4.text = "";
+                    Player5.text = "";
+                    Player6.text = "";
                 }
                 if (players == 4)
                 {
@@ -171,23 +176,26 @@ public class GameManagerMultiplayer : MonoBehaviourPun
                     Player2.text = player.GetNext().NickName;
                     Player3.text = player.GetNext().GetNext().NickName;
                     Player4.text = player.GetNext().GetNext().GetNext().NickName;
+                    Player5.text = "";
+                    Player6.text = "";
                 }
                 if (players == 5)
                 {
                     Player1.text = player.NickName;
                     Player2.text = player.GetNext().NickName;
-                    Player3.text = player.GetNext().GetNext().NickName;
-                    Player4.text = player.GetNext().GetNext().GetNext().NickName;
-                    //Player5.text = player.GetNext().GetNext().GetNext().GetNext().NickName;
+                    Player5.text = player.GetNext().GetNext().NickName;
+                    Player3.text = player.GetNext().GetNext().GetNext().NickName;
+                    Player4.text = player.GetNext().GetNext().GetNext().GetNext().NickName;
+                    Player6.text = "";
                 }
                 if (players == 6)
                 {
                     Player1.text = player.NickName;
                     Player2.text = player.GetNext().NickName;
-                    Player3.text = player.GetNext().GetNext().NickName;
-                    Player4.text = player.GetNext().GetNext().GetNext().NickName;
-                    //Player5.text = player.GetNext().GetNext().GetNext().GetNext().NickName;
-                    //Player6.text = player.GetNext().GetNext().GetNext().GetNext().GetNext().NickName;
+                    Player5.text = player.GetNext().GetNext().NickName;
+                    Player3.text = player.GetNext().GetNext().GetNext().NickName;
+                    Player4.text = player.GetNext().GetNext().GetNext().GetNext().NickName;
+                    Player6.text = player.GetNext().GetNext().GetNext().GetNext().GetNext().NickName;
                 }
             }
         }
@@ -205,8 +213,9 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         }
     }
 
-    public void PlayerTurn(Player p)
+    public void PlayerTurn(Player p, int playerCount)
     {
+        players = playerCount;
         activePlayer = null;
         if (GetChildCount() == players)
         {
@@ -226,7 +235,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         else
         {
             CurrentPlayer(p.ActorNumber);
-            NextCard.nextCard(p, playerNumber);//not done more players
+            NextCard.nextCard(p, playerNumber);
         }
         if (playerHand.transform.childCount == 0 && GetChildCount() == 0)
         {
@@ -279,6 +288,9 @@ public class GameManagerMultiplayer : MonoBehaviourPun
 
     void SetupGame()
     {
+        //Set number of players
+        object[] numberOfPlayers = new object[] { players };
+        PhotonNetwork.RaiseEvent(SET_PLAYERCOUNT_EVENT, numberOfPlayers, raiseEventOptions, SendOptions.SendReliable);
         //Reset Variables
         object[] resetData = new object[] { true };
         PhotonNetwork.RaiseEvent(RESET_VARIABELS_EVENT, resetData, raiseEventOptions, SendOptions.SendReliable);
@@ -340,7 +352,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             cardCount += secondCard.transform.childCount;
             cardCount += thirdCard.transform.childCount;
             cardCount += fourthCard.transform.childCount;
-            //cardCount += fifthCard.transform.childCount;
+            cardCount += fifthCard.transform.childCount;
         }
         if (players == 6)
         {
@@ -348,8 +360,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             cardCount += secondCard.transform.childCount;
             cardCount += thirdCard.transform.childCount;
             cardCount += fourthCard.transform.childCount;
-            //cardCount += fifthCard.transform.childCount;
-            //cardCount += sixthCard.transform.childCount;
+            cardCount += fifthCard.transform.childCount;
+            cardCount += sixthCard.transform.childCount;
         }
         return cardCount;
     }
@@ -391,30 +403,30 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         {
             GameObject child1 = currentCard.transform.GetChild(0).gameObject;
             GameObject child2 = secondCard.transform.GetChild(0).gameObject;
-            GameObject child3 = thirdCard.transform.GetChild(0).gameObject;
-            GameObject child4 = fourthCard.transform.GetChild(0).gameObject;
-            //GameObject child5 = fifthCard.transform.GetChild(0).gameObject;
+            GameObject child3 = fifthCard.transform.GetChild(0).gameObject;
+            GameObject child4 = thirdCard.transform.GetChild(0).gameObject;
+            GameObject child5 = fourthCard.transform.GetChild(0).gameObject;
             childs.Add(child1);
             childs.Add(child2);
             childs.Add(child3);
             childs.Add(child4);
-            //childs.Add(child5);
+            childs.Add(child5);
             return childs;
         }
         if (players == 6)
         {
             GameObject child1 = currentCard.transform.GetChild(0).gameObject;
             GameObject child2 = secondCard.transform.GetChild(0).gameObject;
-            GameObject child3 = thirdCard.transform.GetChild(0).gameObject;
-            GameObject child4 = fourthCard.transform.GetChild(0).gameObject;
-            //GameObject child5 = fifthCard.transform.GetChild(0).gameObject;
-            //GameObject child6 = sixthCard.transform.GetChild(0).gameObject;
+            GameObject child3 = fifthCard.transform.GetChild(0).gameObject;
+            GameObject child4 = thirdCard.transform.GetChild(0).gameObject;
+            GameObject child5 = fourthCard.transform.GetChild(0).gameObject;
+            GameObject child6 = sixthCard.transform.GetChild(0).gameObject;
             childs.Add(child1);
             childs.Add(child2);
             childs.Add(child3);
             childs.Add(child4);
-            //childs.Add(child5);
-            //childs.Add(child6);
+            childs.Add(child5);
+            childs.Add(child6);
             return childs;
         }
         return null;
@@ -435,32 +447,32 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             childs = GetChilds();
             for (int i = 0; i < players; i++)
             {
-                if (i == 1)
+                if (i == 0)
                 {
                     child1 = childs[i] as GameObject;
                     dropzonecards.Add(child1);
                 }
-                if (i == 2)
+                if (i == 1)
                 {
                     child2 = childs[i] as GameObject;
                     dropzonecards.Add(child2);
                 }
-                if (i == 3)
+                if (i == 2)
                 {
                     child3 = childs[i] as GameObject;
                     dropzonecards.Add(child3);
                 }
-                if (i == 4)
+                if (i == 3)
                 {
                     child4 = childs[i] as GameObject;
                     dropzonecards.Add(child4);
                 }
-                if (i == 5)
+                if (i == 4)
                 {
                     child5 = childs[i] as GameObject;
                     dropzonecards.Add(child5);
                 }
-                if (i == 6)
+                if (i == 5)
                 {
                     child6 = childs[i] as GameObject;
                     dropzonecards.Add(child6);
@@ -580,35 +592,29 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         childs = GetChilds();
         for (int i = 0; i < players; i++)
         {
-            if (i == 1)
+            if (i == 0)
             {
                 child1 = childs[i] as GameObject;
-                dropzonecards.Add(child1);
+            }
+            if (i == 1)
+            {
+                child2 = childs[i] as GameObject;
             }
             if (i == 2)
             {
-                child2 = childs[i] as GameObject;
-                dropzonecards.Add(child2);
+                child3 = childs[i] as GameObject;
             }
             if (i == 3)
             {
-                child3 = childs[i] as GameObject;
-                dropzonecards.Add(child3);
+                child4 = childs[i] as GameObject;
             }
             if (i == 4)
             {
-                child4 = childs[i] as GameObject;
-                dropzonecards.Add(child4);
+                child5 = childs[i] as GameObject;
             }
             if (i == 5)
             {
-                child5 = childs[i] as GameObject;
-                dropzonecards.Add(child5);
-            }
-            if (i == 6)
-            {
                 child6 = childs[i] as GameObject;
-                dropzonecards.Add(child6);
             }
         }
         if (players == 2)
@@ -712,11 +718,11 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             }
             if (winner == "player5")
             {
-                player4.Add(child1);
-                player4.Add(child2);
-                player4.Add(child3);
-                player4.Add(child4);
-                player4.Add(child5);
+                player5.Add(child1);
+                player5.Add(child2);
+                player5.Add(child3);
+                player5.Add(child4);
+                player5.Add(child5);
             }
         }
         if (players == 6)
@@ -727,8 +733,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
                 player1.Add(child2);
                 player1.Add(child3);
                 player1.Add(child4);
-                player4.Add(child5);
-                player4.Add(child6);
+                player1.Add(child5);
+                player1.Add(child6);
             }
             if (winner == "player2")
             {
@@ -736,8 +742,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
                 player2.Add(child2);
                 player2.Add(child3);
                 player2.Add(child4);
-                player4.Add(child5);
-                player4.Add(child6);
+                player2.Add(child5);
+                player2.Add(child6);
             }
             if (winner == "player3")
             {
@@ -745,8 +751,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
                 player3.Add(child2);
                 player3.Add(child3);
                 player3.Add(child4);
-                player4.Add(child5);
-                player4.Add(child6);
+                player3.Add(child5);
+                player3.Add(child6);
             }
             if (winner == "player4")
             {
@@ -759,21 +765,21 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             }
             if (winner == "player5")
             {
-                player4.Add(child1);
-                player4.Add(child2);
-                player4.Add(child3);
-                player4.Add(child4);
-                player4.Add(child5);
-                player4.Add(child6);
+                player5.Add(child1);
+                player5.Add(child2);
+                player5.Add(child3);
+                player5.Add(child4);
+                player5.Add(child5);
+                player5.Add(child6);
             }
             if (winner == "player6")
             {
-                player4.Add(child1);
-                player4.Add(child2);
-                player4.Add(child3);
-                player4.Add(child4);
-                player4.Add(child5);
-                player4.Add(child6);
+                player6.Add(child1);
+                player6.Add(child2);
+                player6.Add(child3);
+                player6.Add(child4);
+                player6.Add(child5);
+                player6.Add(child6);
             }
         }
         StartCoroutine(Wait(winner));
@@ -786,12 +792,41 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         dropzonecards.Clear();
         trumpfcards.Clear();
         othercards.Clear();
-        currentCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
-        secondCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
-        thirdCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
-        fourthCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
-        //fifthCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
-        //sixthCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+        if (players == 2)
+        {
+            currentCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+            secondCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+        }
+        if (players == 3)
+        {
+            currentCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+            secondCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+            thirdCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+        }
+        if (players == 4)
+        {
+            currentCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+            secondCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+            thirdCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+            fourthCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+        }
+        if (players == 5)
+        {
+            currentCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+            secondCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+            fifthCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+            thirdCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+            fourthCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+        }
+        if (players == 6)
+        {
+            currentCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+            secondCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+            fifthCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+            thirdCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+            fourthCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+            sixthCard.transform.GetChild(0).gameObject.transform.SetParent(yard.transform, false);
+        }
         for (int i = 0; i < yard.transform.childCount; i++)
         {
             yard.transform.GetChild(i).gameObject.SetActive(false);
@@ -912,7 +947,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             Destroy(secondCard.transform.GetChild(0).gameObject);
             Destroy(thirdCard.transform.GetChild(0).gameObject);
             Destroy(fourthCard.transform.GetChild(0).gameObject);
-            //Destroy(fifthCard.transform.GetChild(0).gameObject);
+            Destroy(fifthCard.transform.GetChild(0).gameObject);
         }
         if (players == 6)
         {
@@ -920,8 +955,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             Destroy(secondCard.transform.GetChild(0).gameObject);
             Destroy(thirdCard.transform.GetChild(0).gameObject);
             Destroy(fourthCard.transform.GetChild(0).gameObject);
-            //Destroy(fifthCard.transform.GetChild(0).gameObject);
-            //Destroy(sixthCard.transform.GetChild(0).gameObject);
+            Destroy(fifthCard.transform.GetChild(0).gameObject);
+            Destroy(sixthCard.transform.GetChild(0).gameObject);
         }
     }
 
@@ -959,7 +994,6 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         trumpfUnit = null;
         round = 0;
         cardCount = 0;
-        players = 0;
     }
 
     private void OnEnable()
@@ -989,6 +1023,12 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             Player sPlayer = (Player)datas[0];
             startPlayer = sPlayer;
         }
+        if (obj.Code == SET_PLAYERCOUNT_EVENT)
+        {
+            object[] datas = (object[])obj.CustomData;
+            int playerCount = (int)datas[0];
+            players = playerCount;
+        }
         if (obj.Code == CURRENT_PLAYER_EVENT)
         {
             object[] datas = (object[])obj.CustomData;
@@ -997,8 +1037,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             Player2.color = Color.black;
             Player3.color = Color.black;
             Player4.color = Color.black;
-            //Player5.color = Color.black;
-            //Player6.color = Color.black;
+            Player5.color = Color.black;
+            Player6.color = Color.black;
             foreach (Player player in PhotonNetwork.PlayerList)
             {
                 if(player.IsLocal)
@@ -1066,10 +1106,10 @@ public class GameManagerMultiplayer : MonoBehaviourPun
                         {
                             Player4.color = Color.red;
                         }
-                        //if (Player5.text == p)
-                        //{
-                        //    Player5.color = Color.red;
-                        //}
+                        if (Player5.text == p)
+                        {
+                            Player5.color = Color.red;
+                        }
                     }
                     if (players == 6)
                     {
@@ -1089,14 +1129,14 @@ public class GameManagerMultiplayer : MonoBehaviourPun
                         {
                             Player4.color = Color.red;
                         }
-                        //if (Player5.text == p)
-                        //{
-                        //    Player5.color = Color.red;
-                        //}
-                        //if (Player6.text == p)
-                        //{
-                        //    Player6.color = Color.red;
-                        //}
+                        if (Player5.text == p)
+                        {
+                            Player5.color = Color.red;
+                        }
+                        if (Player6.text == p)
+                        {
+                            Player6.color = Color.red;
+                        }
                     }
                 }
             }
@@ -1138,8 +1178,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
                 Score2.text = startPlayer.GetNext().NickName + ": " + score2;
                 Score3.text = "";
                 Score4.text = "";
-                //Score5.text = "";
-                //Score6.text = "";
+                Score5.text = "";
+                Score6.text = "";
             }
             if (players == 3)
             {
@@ -1147,8 +1187,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
                 Score2.text = startPlayer.GetNext().NickName + ": " + score2;
                 Score3.text = startPlayer.GetNext().GetNext().NickName + ": " + score3;
                 Score4.text = "";
-                //Score5.text = "";
-                //Score6.text = "";
+                Score5.text = "";
+                Score6.text = "";
             }
             if (players == 4)
             {
@@ -1156,8 +1196,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
                 Score2.text = startPlayer.GetNext().NickName + ": " + score2;
                 Score3.text = startPlayer.GetNext().GetNext().NickName + ": " + score3;
                 Score4.text = startPlayer.GetNext().GetNext().GetNext().NickName + ": " + score4;
-                //Score5.text = "";
-                //Score6.text = "";
+                Score5.text = "";
+                Score6.text = "";
             }
             if (players == 5)
             {
@@ -1165,8 +1205,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
                 Score2.text = startPlayer.GetNext().NickName + ": " + score2;
                 Score3.text = startPlayer.GetNext().GetNext().NickName + ": " + score3;
                 Score4.text = startPlayer.GetNext().GetNext().GetNext().NickName + ": " + score4;
-                //Score5.text = startPlayer.GetNext().GetNext().GetNext().GetNext().NickName + ": " + score5;
-                //Score6.text = "";
+                Score5.text = startPlayer.GetNext().GetNext().GetNext().GetNext().NickName + ": " + score5;
+                Score6.text = "";
             }
             if (players == 6)
             {
@@ -1174,8 +1214,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
                 Score2.text = startPlayer.GetNext().NickName + ": " + score2;
                 Score3.text = startPlayer.GetNext().GetNext().NickName + ": " + score3;
                 Score4.text = startPlayer.GetNext().GetNext().GetNext().NickName + ": " + score4;
-                //Score5.text = startPlayer.GetNext().GetNext().GetNext().GetNext().NickName + ": " + score5;
-                //Score6.text = startPlayer.GetNext().GetNext().GetNext().GetNext().GetNext().NickName + ": " + score6;
+                Score5.text = startPlayer.GetNext().GetNext().GetNext().GetNext().NickName + ": " + score5;
+                Score6.text = startPlayer.GetNext().GetNext().GetNext().GetNext().GetNext().NickName + ": " + score6;
             }
             EndGame();
         }

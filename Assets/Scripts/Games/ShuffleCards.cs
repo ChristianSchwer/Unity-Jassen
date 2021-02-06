@@ -590,23 +590,6 @@ public class ShuffleCards : MonoBehaviourPun
         }
     }
 
-    public void Test()
-    {
-        foreach (GameObject card in cards)
-        {
-            if (card.name.Contains("9"))
-            {
-                currentUnit = card.GetComponent<PlayCard>();
-                Debug.Log(card);
-                Debug.Log(currentUnit);
-                Debug.Log(currentUnit.unitName);
-                Debug.Log(currentUnit.unitPlayer);
-                Debug.Log(currentUnit.unitStrength);
-                Debug.Log(currentUnit.unitValue);
-            }
-        }
-    }
-
     public void ClearList()
     {
         player1.Clear();
@@ -623,7 +606,6 @@ public class ShuffleCards : MonoBehaviourPun
         playerUnsorted6.Clear();
         cards.Clear();
         cardsName.Clear();
-        playerCount = 0;
 }
 
     #endregion
@@ -657,7 +639,6 @@ public class ShuffleCards : MonoBehaviourPun
             ResetCards(cards);
             gameManagerMultiplayer.GetTrumpf(cards);
             GiveCards();
-            //Test();
         }
     }
 
