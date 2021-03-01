@@ -110,6 +110,7 @@ public class GameManagerMultiplayer : MonoBehaviourPun
     private const byte TRUMPF_EVENT = 3;
     private const byte SET_AKTIVE_EVENT = 5;
     private const byte SET_PLAYERCOUNT_EVENT = 7;
+    private const byte SEND_SOUND_EVENT = 8;
     private const byte RESET_VARIABELS_EVENT = 9;
     private const byte SET_STARTPLAYER_EVENT = 10;
     private const byte SEND_SCORE_EVENT= 13;
@@ -207,10 +208,8 @@ public class GameManagerMultiplayer : MonoBehaviourPun
 
     public void OnClick_YouShouldLay()
     {
-        if (NextCard.currentPlayer.IsLocal)
-        {
-            youShouldLaySound.Play();
-        }
+        object[] data = new object[] { NextCard.currentPlayer };
+        PhotonNetwork.RaiseEvent(SEND_SOUND_EVENT, data, raiseEventOptions, SendOptions.SendReliable);
     }
 
     public void PlayerTurn(Player p, int playerCount)
@@ -890,32 +889,50 @@ public class GameManagerMultiplayer : MonoBehaviourPun
         {
             currentUnit = card.GetComponent<PlayCard>();
             yard1 += currentUnit.unitValue;
+            Debug.Log(1 + " " + currentUnit.unitName);
+            Debug.Log(1 + " " + currentUnit.unitValue);
         }
         foreach (GameObject card in player2)
         {
             currentUnit = card.GetComponent<PlayCard>();
             yard2 += currentUnit.unitValue;
+            Debug.Log(2 + " " + currentUnit.unitName);
+            Debug.Log(2 + " " + currentUnit.unitValue);
         }
         foreach (GameObject card in player3)
         {
             currentUnit = card.GetComponent<PlayCard>();
             yard3 += currentUnit.unitValue;
+            Debug.Log(3 + " " + currentUnit.unitName);
+            Debug.Log(3 + " " + currentUnit.unitValue);
         }
         foreach (GameObject card in player4)
         {
             currentUnit = card.GetComponent<PlayCard>();
             yard4 += currentUnit.unitValue;
+            Debug.Log(4 + " " + currentUnit.unitName);
+            Debug.Log(4 + " " + currentUnit.unitValue);
         }
         foreach (GameObject card in player5)
         {
             currentUnit = card.GetComponent<PlayCard>();
             yard5 += currentUnit.unitValue;
+            Debug.Log(5 + " " + currentUnit.unitName);
+            Debug.Log(5 + " " + currentUnit.unitValue);
         }
         foreach (GameObject card in player6)
         {
             currentUnit = card.GetComponent<PlayCard>();
             yard6 += currentUnit.unitValue;
+            Debug.Log(6 + " " + currentUnit.unitName);
+            Debug.Log(6 + " " + currentUnit.unitValue);
         }
+        Debug.Log(yard1);
+        Debug.Log(yard2);
+        Debug.Log(yard3);
+        Debug.Log(yard4);
+        Debug.Log(yard5);
+        Debug.Log(yard6);
         object[] datas = new object[] { yard1.ToString(), yard2.ToString(), yard3.ToString(), yard4.ToString(), yard5.ToString(), yard6.ToString()};
         PhotonNetwork.RaiseEvent(SEND_SCORE_EVENT, datas, raiseEventOptions, SendOptions.SendReliable);
     }
@@ -1240,6 +1257,15 @@ public class GameManagerMultiplayer : MonoBehaviourPun
             TrumpfS.SetActive(active);
             TrumpfH.SetActive(active);
             TrumpfB.SetActive(active);
+        }
+        if (obj.Code == SEND_SOUND_EVENT)
+        {
+            object[] datas = (object[])obj.CustomData;
+            Player currentPlayer = (Player)datas[0]; 
+            if (currentPlayer.IsLocal)
+            {
+                youShouldLaySound.Play();
+            }
         }
     }
     #endregion
